@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Trainer Portal - FitFusion{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in" style="padding: 2rem;">
+    <h1 class="page-title">Trainer Dashboard</h1>
+    <p class="page-subtitle">Overview of all enrolled users and their progress.</p>
+
+    <div style="overflow-x: auto; margin-top: 1.5rem;">
+        <table class="glass-card" id="trainer-table" style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Weight</th>
+                    <th>Height</th>
+                    <th>BMI</th>
+                    <th>XP</th>
+                    <th>Level</th>
+                    <th>Streak</th>
+                    <th>Workouts</th>
+                    <th>Last Login</th>
+                    <th>Plan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="12" style="text-align:center; padding:2rem; color: hsl(var(--muted-foreground));">
+                    Loading users...
+                </td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Plan modal -->
+<div class="modal-overlay" id="plan-modal" style="display:none;">
+    <div class="modal" style="max-width:600px; white-space:pre-wrap;">
+        <div class="modal-header">
+            <h2>User Workout Plan</h2>
+            <button onclick="closePlan()" class="btn btn-sm btn-circle btn-ghost">&times;</button>
+        </div>
+        <div class="modal-body" id="plan-modal-content" style="font-family: monospace; font-size:0.875rem; max-height:400px; overflow:auto;"></div>
+    </div>
+</div>
+<script>
+    function showPlan(plan) {
+        const modal = document.getElementById('plan-modal');
+        const content = document.getElementById('plan-modal-content');
+        content.textContent = JSON.stringify(plan, null, 2);
+        modal.style.display = 'flex';
+    }
+    function closePlan() {
+        document.getElementById('plan-modal').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        // verify that current user is trainer else redirect
+        const userData = JSON.parse(localStorage.getItem('fitai_user_data') || '{}');
+        if (!userData.role || userData.role !== 'trainer') {
+            window.location.href = '/';
+            return;
+        }
+        try {
+            const res = await fetch(`/api/trainer/users?user_id=${userData.id}`);
+            const data = await res.json();
+            const tbody = document.querySelector('#trainer-table tbody');
+            if (data.success && data.users) {
+                tbody.innerHTML = '';
+                data.users.forEach(u => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${u.username || ''}</td>
+                        <td>${u.email || ''}</td>
+                        <td>${u.role || ''}</td>
+                        <td>${u.weight || ''}</td>
+                        <td>${u.height || ''}</td>
+                        <td>${u.bmi || ''}</td>
+                        <td>${u.total_xp || 0}</td>
+                        <td>${u.level || 1}</td>
+                        <td>${u.streak_days || 0}</td>
+                        <td>${u.total_workouts || 0}</td>
+                        <td>${u.last_login || ''}</td>
+                        <td>${u.latest_plan ? `<button class="btn btn-sm btn-outline" onclick='showPlan(${JSON.stringify(u.latest_plan)})'>View Plan</button>` : '—'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="12" style="text-align:center; color:red;">Unable to load user data</td></tr>';
+            }
+        } catch (e) {
+            const tbody = document.querySelector('#trainer-table tbody');
+            tbody.innerHTML = '<tr><td colspan="12" style="text-align:center; color:red;">Error fetching users</td></tr>';
+            console.error(e);
+        }
+    });
+</script>
+{% endblock %}

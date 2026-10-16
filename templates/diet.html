@@ -1,0 +1,843 @@
+{% extends "base.html" %}
+{% block title %}Diet Planner - FitFusion{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="page-header">
+        <h1 class="page-title">Fuel <span class="text-gradient-primary">Intelligence</span></h1>
+        <p class="page-subtitle">Track your weight, meals, and workouts daily to reach your target.</p>
+    </div>
+
+    <!-- DAILY CHECK-IN STRIP -->
+    <div id="checkin-strip" class="glass-card" style="margin-bottom:2rem; background:hsla(185,100%,50%,0.04); border-color:hsla(185,100%,50%,0.15);">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+            <div style="font-size:0.75rem; font-weight:700; color:hsl(var(--primary)); text-transform:uppercase; letter-spacing:0.1em;">
+                <i class="fas fa-clipboard-check" style="margin-right:0.4rem;"></i>Today's Check-In
+            </div>
+            <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
+                <!-- Weight log -->
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <span id="weight-checkin-status" style="width:1.75rem; height:1.75rem; border-radius:50%; background:hsla(210,40%,98%,0.05); border:2px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:0.75rem;">⚖️</span>
+                    <div>
+                        <div style="font-size:0.7rem; color:hsl(var(--muted-foreground));">Weight</div>
+                        <div style="font-size:0.875rem; font-weight:700;" id="weight-checkin-val">Not logged</div>
+                    </div>
+                    <button class="btn btn-ghost" style="font-size:0.7rem; padding:0.25rem 0.625rem; border:1px solid rgba(255,255,255,0.1);" onclick="openWeightModal()">Log</button>
+                </div>
+                <div style="width:1px; height:2rem; background:rgba(255,255,255,0.07);"></div>
+                <!-- Meals -->
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <span id="meals-checkin-status" style="width:1.75rem; height:1.75rem; border-radius:50%; background:hsla(210,40%,98%,0.05); border:2px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:0.75rem;">🍽️</span>
+                    <div>
+                        <div style="font-size:0.7rem; color:hsl(var(--muted-foreground));">Meals</div>
+                        <div style="font-size:0.875rem; font-weight:700;" id="meals-checkin-val">0 / 0</div>
+                    </div>
+                </div>
+                <div style="width:1px; height:2rem; background:rgba(255,255,255,0.07);"></div>
+                <!-- Workout -->
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <span id="workout-checkin-status" style="width:1.75rem; height:1.75rem; border-radius:50%; background:hsla(210,40%,98%,0.05); border:2px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:center; font-size:0.75rem;">🏋️</span>
+                    <div>
+                        <div style="font-size:0.7rem; color:hsl(var(--muted-foreground));">Workout</div>
+                        <div style="font-size:0.875rem; font-weight:700;" id="workout-checkin-val">Not logged</div>
+                    </div>
+                    <button class="btn btn-ghost" style="font-size:0.7rem; padding:0.25rem 0.625rem; border:1px solid rgba(255,255,255,0.1);" onclick="openWorkoutModal()">Log</button>
+                </div>
+                <div style="width:1px; height:2rem; background:rgba(255,255,255,0.07);"></div>
+                <!-- Weight progress -->
+                <div>
+                    <div style="font-size:0.7rem; color:hsl(var(--muted-foreground));">Target Progress</div>
+                    <div style="font-size:0.875rem; font-weight:700;" id="target-progress-val">-- kg to go</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex; gap:0.5rem; margin-bottom:2rem; background:hsla(210,40%,98%,0.03); padding:0.375rem; border-radius:0.75rem; border:1px solid rgba(255,255,255,0.05); width:fit-content;">
+        <button class="tab-btn active" id="tab-today" onclick="switchTab('today')"><i class="fas fa-calendar-day"></i> Today's Meals</button>
+        <button class="tab-btn" id="tab-progress" onclick="switchTab('progress')"><i class="fas fa-chart-line"></i> Weight Progress</button>
+        <button class="tab-btn" id="tab-week" onclick="switchTab('week')"><i class="fas fa-calendar-week"></i> Weekly Plan</button>
+        <button class="tab-btn" id="tab-generate" onclick="switchTab('generate')"><i class="fas fa-wand-magic-sparkles"></i> Generate Plan</button>
+    </div>
+
+    <!-- TODAY'S MEALS -->
+    <div id="tab-today-content">
+        <div id="today-diet-container">
+            <div class="glass-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:350px;text-align:center;">
+                <div class="animate-pulse" style="color:hsl(var(--primary));font-size:2rem;margin-bottom:1rem;"><i class="fas fa-utensils"></i></div>
+                <p style="color:hsl(var(--muted-foreground));">Loading today's meals...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEIGHT PROGRESS -->
+    <div id="tab-progress-content" style="display:none;">
+        <div style="display:grid; grid-template-columns:1fr 320px; gap:2rem;">
+            <div>
+                <!-- Progress summary -->
+                <div class="glass-card" style="margin-bottom:1.5rem;" id="progress-summary">
+                    <div style="display:flex;align-items:center;justify-content:center;min-height:100px;">
+                        <div class="animate-pulse" style="color:hsl(var(--primary));"><i class="fas fa-chart-line fa-2x"></i></div>
+                    </div>
+                </div>
+                <!-- Weight log history -->
+                <div class="glass-card" id="weight-history-card">
+                    <div style="font-size:0.75rem;font-weight:700;color:hsl(var(--muted-foreground));text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1rem;">Weight Log History</div>
+                    <div id="weight-history-list"><p style="color:hsl(var(--muted-foreground));font-size:0.875rem;">No logs yet.</p></div>
+                </div>
+            </div>
+            <!-- Log weight card -->
+            <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                <div class="glass-card" style="background:hsla(185,100%,50%,0.05);border-color:hsla(185,100%,50%,0.2);">
+                    <h4 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem;"><i class="fas fa-weight" style="color:hsl(var(--primary));margin-right:0.5rem;"></i>Log Today's Weight</h4>
+                    <div class="form-group">
+                        <label>Current Weight (kg)</label>
+                        <input type="number" id="weight-input" class="form-control" placeholder="70.5" step="0.1" min="30" max="300">
+                    </div>
+                    <div class="form-group">
+                        <label>Notes (optional)</label>
+                        <input type="text" id="weight-notes" class="form-control" placeholder="e.g. after breakfast">
+                    </div>
+                    <button class="btn btn-hero btn-full glow-primary" onclick="logWeight()">
+                        <i class="fas fa-save"></i> Save Weight
+                    </button>
+                </div>
+
+                <!-- Target info -->
+                <div class="glass-card" id="target-card">
+                    <div style="font-size:0.75rem;font-weight:700;color:hsl(var(--muted-foreground));text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1rem;">Your Target</div>
+                    <div id="target-info" style="font-size:0.875rem;color:hsl(var(--muted-foreground));">Loading...</div>
+                </div>
+
+                <!-- Food preference -->
+                <div class="glass-card">
+                    <div style="font-size:0.75rem;font-weight:700;color:hsl(var(--muted-foreground));text-transform:uppercase;letter-spacing:0.05em;margin-bottom:1rem;"><i class="fas fa-leaf" style="margin-right:0.4rem;color:hsl(var(--success));"></i>Food Preference</div>
+                    <div style="display:flex;flex-direction:column;gap:0.5rem;" id="food-pref-options">
+                        <label class="pref-radio" id="pref-nonveg"><input type="radio" name="diet-pref" value="non-vegetarian" onchange="updateFoodPref(this.value)"> <i class="fas fa-drumstick-bite"></i> Non-Vegetarian</label>
+                        <label class="pref-radio" id="pref-veg"><input type="radio" name="diet-pref" value="vegetarian" onchange="updateFoodPref(this.value)"> <i class="fas fa-seedling"></i> Vegetarian</label>
+                        <label class="pref-radio" id="pref-vegan"><input type="radio" name="diet-pref" value="vegan" onchange="updateFoodPref(this.value)"> <i class="fas fa-leaf"></i> Vegan</label>
+                    </div>
+                    <p style="font-size:0.72rem;color:hsl(var(--muted-foreground));margin-top:0.75rem;">Changing this will apply to the next generated plan.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEEKLY PLAN -->
+    <div id="tab-week-content" style="display:none;">
+        <div id="weekly-plan-container">
+            <div class="glass-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:350px;text-align:center;">
+                <div class="animate-pulse" style="color:hsl(var(--primary));font-size:2rem;margin-bottom:1rem;"><i class="fas fa-calendar-week"></i></div>
+                <p style="color:hsl(var(--muted-foreground));">Loading weekly plan...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- GENERATE -->
+    <div id="tab-generate-content" style="display:none;">
+        <div style="display:grid;grid-template-columns:400px 1fr;gap:2rem;">
+            <div class="glass-card">
+                <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
+                    <div style="width:2.5rem;height:2.5rem;background:hsla(185,100%,50%,0.1);border-radius:0.75rem;display:flex;align-items:center;justify-content:center;color:hsl(var(--primary));"><i class="fas fa-wand-magic-sparkles"></i></div>
+                    <h3>Generate 7-Day Plan</h3>
+                </div>
+                <p style="font-size:0.875rem;color:hsl(var(--muted-foreground));margin-bottom:1.5rem;line-height:1.6;">Creates a full meal plan synced to your workout schedule. Each day's calories adjust based on training intensity.</p>
+
+                <!-- Target weight input -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+                    <div class="form-group">
+                        <label>Current Weight (kg)</label>
+                        <input type="number" id="gen-current-weight" class="form-control" placeholder="70" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label>Target Weight (kg)</label>
+                        <input type="number" id="gen-target-weight" class="form-control" placeholder="65" step="0.1">
+                    </div>
+                </div>
+
+                <!-- Food preference -->
+                <div class="form-group" style="margin-bottom:1.25rem;">
+                    <label style="display:block;margin-bottom:0.5rem;">Food Preference</label>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;">
+                        <label class="pref-btn-card" id="gen-nonveg">
+                            <input type="radio" name="gen-pref" value="non-vegetarian" checked onchange="highlightPref('gen',this.value)">
+                            <i class="fas fa-drumstick-bite"></i><span>Omni</span>
+                        </label>
+                        <label class="pref-btn-card" id="gen-veg">
+                            <input type="radio" name="gen-pref" value="vegetarian" onchange="highlightPref('gen',this.value)">
+                            <i class="fas fa-seedling"></i><span>Veg</span>
+                        </label>
+                        <label class="pref-btn-card" id="gen-vegan">
+                            <input type="radio" name="gen-pref" value="vegan" onchange="highlightPref('gen',this.value)">
+                            <i class="fas fa-leaf"></i><span>Vegan</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="glass-card" style="background:hsla(185,100%,50%,0.05);border-color:hsla(185,100%,50%,0.2);margin-bottom:1.5rem;" id="gen-workout-summary">
+                    <div style="font-size:0.7rem;font-weight:700;color:hsl(var(--muted-foreground));text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.75rem;">Linked Workout Plan</div>
+                    <div id="gen-workout-content" style="font-size:0.8rem;color:hsl(var(--muted-foreground));">Loading...</div>
+                </div>
+
+                <button class="btn btn-hero btn-full glow-primary" onclick="generateWeeklyDiet()" id="gen-btn" style="padding:1rem;">
+                    <i class="fas fa-bolt"></i> Generate 7-Day Plan
+                </button>
+                <p style="font-size:0.7rem;color:hsl(var(--muted-foreground));text-align:center;margin-top:0.75rem;">⚠️ Replaces your current diet plan</p>
+            </div>
+            <div id="gen-output" class="glass-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center;border-style:dashed;border-width:2px;">
+                <i class="fas fa-dna" style="font-size:2.5rem;color:hsl(var(--muted-foreground));margin-bottom:1rem;opacity:0.3;"></i>
+                <h3 style="font-size:1.125rem;margin-bottom:0.5rem;">Ready to Generate</h3>
+                <p style="color:hsl(var(--muted-foreground));font-size:0.875rem;max-width:300px;">Set your target weight, food preference, and generate your personalized 7-day plan.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Weight Log Modal -->
+<div id="weight-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center;padding:1.5rem;">
+    <div class="glass-card" style="width:100%;max-width:400px;position:relative;">
+        <button onclick="closeModal('weight-modal')" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:hsl(var(--muted-foreground));font-size:1.25rem;cursor:pointer;"><i class="fas fa-times"></i></button>
+        <h3 style="margin-bottom:1.5rem;"><i class="fas fa-weight" style="color:hsl(var(--primary));margin-right:0.5rem;"></i>Log Today's Weight</h3>
+        <div class="form-group">
+            <label>Weight (kg)</label>
+            <input type="number" id="modal-weight-input" class="form-control" placeholder="70.5" step="0.1" style="font-size:1.5rem;text-align:center;font-weight:800;">
+        </div>
+        <div class="form-group">
+            <label>Notes (optional)</label>
+            <input type="text" id="modal-weight-notes" class="form-control" placeholder="e.g. morning, before eating">
+        </div>
+        <button class="btn btn-hero btn-full glow-primary" onclick="logWeightFromModal()"><i class="fas fa-save"></i> Save</button>
+    </div>
+</div>
+
+<!-- Workout Log Modal -->
+<div id="workout-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center;padding:1.5rem;">
+    <div class="glass-card" style="width:100%;max-width:440px;position:relative;">
+        <button onclick="closeModal('workout-modal')" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:hsl(var(--muted-foreground));font-size:1.25rem;cursor:pointer;"><i class="fas fa-times"></i></button>
+        <h3 style="margin-bottom:0.25rem;"><i class="fas fa-dumbbell" style="color:hsl(var(--primary));margin-right:0.5rem;"></i>Log Today's Workout</h3>
+        <p style="color:hsl(var(--muted-foreground));font-size:0.875rem;margin-bottom:1.5rem;" id="modal-workout-focus"></p>
+        <div class="form-group">
+            <label>Duration (minutes)</label>
+            <input type="number" id="modal-workout-duration" class="form-control" value="45" min="1">
+        </div>
+        <div class="form-group">
+            <label>Notes (optional)</label>
+            <input type="text" id="modal-workout-notes" class="form-control" placeholder="e.g. felt great, skipped last set...">
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:1rem;">
+            <button class="btn btn-hero btn-full glow-primary" onclick="logWorkout(true)"><i class="fas fa-check"></i> Completed ✓</button>
+            <button class="btn btn-ghost btn-full" style="border:1px solid rgba(255,255,255,0.1);" onclick="logWorkout(false)"><i class="fas fa-times"></i> Skipped</button>
+        </div>
+    </div>
+</div>
+
+<!-- Meal Log Modal -->
+<div id="meal-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:200;align-items:center;justify-content:center;padding:1.5rem;">
+    <div class="glass-card" style="width:100%;max-width:480px;position:relative;">
+        <button onclick="closeModal('meal-modal')" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:hsl(var(--muted-foreground));font-size:1.25rem;cursor:pointer;"><i class="fas fa-times"></i></button>
+        <h3 id="modal-meal-name" style="font-size:1.25rem;margin-bottom:0.25rem;"></h3>
+        <p style="font-size:0.875rem;color:hsl(var(--muted-foreground));margin-bottom:1.5rem;" id="modal-meal-meta"></p>
+        <div class="form-group">
+            <label>How did it go?</label>
+            <textarea id="modal-feedback" class="form-control" placeholder="e.g. Finished it all, was too full, swapped rice for roti..." rows="3" style="resize:none;"></textarea>
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:1rem;">
+            <button class="btn btn-hero btn-full glow-primary" onclick="submitMealLog(true)"><i class="fas fa-check"></i> Ate It ✓</button>
+            <button class="btn btn-ghost btn-full" style="border:1px solid rgba(255,255,255,0.1);" onclick="submitMealLog(false)"><i class="fas fa-times"></i> Skipped</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.tab-btn{padding:.625rem 1.25rem;border-radius:.5rem;font-size:.875rem;font-weight:600;color:hsl(var(--muted-foreground));background:transparent;border:none;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:all .2s}
+.tab-btn.active{background:hsla(185,100%,50%,.1);color:hsl(var(--primary))}
+.tab-btn:hover:not(.active){background:hsla(210,40%,98%,.05);color:hsl(var(--foreground))}
+.meal-card{transition:all .2s;cursor:pointer}
+.meal-card:hover{border-color:hsla(185,100%,50%,.3)!important}
+.meal-card.done{border-color:hsla(150,80%,45%,.3)!important;background:hsla(150,80%,45%,.03)!important}
+.meal-card.skipped{opacity:.5}
+.pref-radio{display:flex;align-items:center;gap:.75rem;padding:.75rem;border:1px solid rgba(255,255,255,.07);border-radius:.625rem;cursor:pointer;font-size:.875rem;transition:all .2s}
+.pref-radio:has(input:checked){background:hsla(185,100%,50%,.08);border-color:hsla(185,100%,50%,.3);color:hsl(var(--primary))}
+.pref-btn-card{display:flex;flex-direction:column;align-items:center;gap:.375rem;padding:.75rem .5rem;border:1px solid rgba(255,255,255,.07);border-radius:.625rem;cursor:pointer;font-size:.75rem;font-weight:600;transition:all .2s;text-align:center}
+.pref-btn-card:has(input:checked){background:hsla(185,100%,50%,.1);border-color:hsla(185,100%,50%,.3);color:hsl(var(--primary))}
+.pref-btn-card input{display:none}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let userId = null;
+let currentModalMeal = null;
+let todayWorkoutFocus = '';
+
+document.addEventListener('DOMContentLoaded', async () => {
+    userId = localStorage.getItem('fitai_user_id');
+    if (!userId) { window.location.href = '/'; return; }
+    await Promise.all([loadCheckinStrip(), loadTodayDiet(), loadWeeklyPlan(), loadGenSetup(), loadProgressTab()]);
+});
+
+function switchTab(tab) {
+    ['today','progress','week','generate'].forEach(t => {
+        document.getElementById(`tab-${t}-content`).style.display = t === tab ? 'block' : 'none';
+        document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+    });
+}
+
+// ── CHECK-IN STRIP ─────────────────────────────────────────────────────────
+async function loadCheckinStrip() {
+    try {
+        const res = await fetch(`/api/summary/${userId}`);
+        const d = await res.json();
+
+        // Weight
+        if (d.weight_logged) {
+            document.getElementById('weight-checkin-val').textContent = `${d.current_weight} kg`;
+            document.getElementById('weight-checkin-status').innerHTML = '✅';
+        } else {
+            document.getElementById('weight-checkin-val').textContent = 'Not logged';
+        }
+
+        // Meals
+        document.getElementById('meals-checkin-val').textContent = `${d.meals_completed} / ${d.meals_total || '?'}`;
+        if (d.meals_total > 0 && d.meals_completed === d.meals_total) {
+            document.getElementById('meals-checkin-status').innerHTML = '✅';
+        }
+
+        // Workout
+        if (d.workout_completed) {
+            document.getElementById('workout-checkin-val').textContent = 'Done ✓';
+            document.getElementById('workout-checkin-status').innerHTML = '✅';
+        } else {
+            document.getElementById('workout-checkin-val').textContent = 'Not logged';
+        }
+        todayWorkoutFocus = d.workout_focus || '';
+
+        // Target
+        if (d.current_weight && d.target_weight) {
+            const diff = Math.abs(d.current_weight - d.target_weight).toFixed(1);
+            const direction = d.current_weight > d.target_weight ? 'to lose' : 'to gain';
+            document.getElementById('target-progress-val').textContent = `${diff} kg ${direction}`;
+        }
+    } catch(e) { console.error(e); }
+}
+
+// ── WEIGHT LOGGING ─────────────────────────────────────────────────────────
+function openWeightModal() {
+    document.getElementById('weight-modal').style.display = 'flex';
+    document.getElementById('modal-weight-input').focus();
+}
+async function logWeightFromModal() {
+    const w = document.getElementById('modal-weight-input').value;
+    const n = document.getElementById('modal-weight-notes').value;
+    if (!w) return;
+    await doLogWeight(w, n);
+    closeModal('weight-modal');
+}
+async function logWeight() {
+    const w = document.getElementById('weight-input').value;
+    const n = document.getElementById('weight-notes').value;
+    if (!w) { showToast('Enter a weight value', 'error'); return; }
+    await doLogWeight(w, n);
+}
+async function doLogWeight(weight, notes) {
+    try {
+        const res = await fetch('/api/weight/log', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({user_id: userId, weight: parseFloat(weight), notes})
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast(`Weight logged: ${weight} kg ⚖️`, 'success');
+            await Promise.all([loadCheckinStrip(), loadProgressTab()]);
+        }
+    } catch(e) { showToast('Failed to log weight', 'error'); }
+}
+
+// ── WORKOUT LOGGING ────────────────────────────────────────────────────────
+function openWorkoutModal() {
+    document.getElementById('modal-workout-focus').textContent = todayWorkoutFocus || 'Today\'s workout';
+    document.getElementById('workout-modal').style.display = 'flex';
+}
+async function logWorkout(completed) {
+    const duration = parseInt(document.getElementById('modal-workout-duration').value) || 45;
+    const notes = document.getElementById('modal-workout-notes').value;
+    closeModal('workout-modal');
+    try {
+        const res = await fetch('/api/workout/complete', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({user_id: userId, completed, workout_focus: todayWorkoutFocus, duration, notes})
+        });
+        const data = await res.json();
+        if (data.success) {
+            if (completed) showToast(`Workout done! +${data.xp_earned} XP 💪`, 'success');
+            else showToast('Workout marked as skipped', 'info');
+            await loadCheckinStrip();
+        }
+    } catch(e) { showToast('Failed to log workout', 'error'); }
+}
+
+// ── FOOD PREFERENCE ────────────────────────────────────────────────────────
+async function updateFoodPref(value) {
+    try {
+        await fetch(`/api/user/${userId}`, {
+            method: 'PATCH',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({food_preference: value})
+        });
+        showToast(`Diet preference updated to ${value}`, 'success');
+    } catch(e) {}
+}
+
+// ── PROGRESS TAB ───────────────────────────────────────────────────────────
+async function loadProgressTab() {
+    try {
+        const [histRes, userRes] = await Promise.all([
+            fetch(`/api/weight/history/${userId}`),
+            fetch(`/api/user/${userId}`)
+        ]);
+        const hist = await histRes.json();
+        const user = await userRes.json();
+
+        // Set food preference radio
+        const pref = user.food_preference || 'non-vegetarian';
+        const radio = document.querySelector(`input[name="diet-pref"][value="${pref}"]`);
+        if (radio) radio.checked = true;
+
+        // Target card
+        document.getElementById('target-info').innerHTML = `
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                <div style="display:flex;justify-content:space-between;"><span>Current Weight</span><strong>${user.weight || '--'} kg</strong></div>
+                <div style="display:flex;justify-content:space-between;"><span>Target Weight</span><strong style="color:hsl(var(--primary));">${user.target_weight || '--'} kg</strong></div>
+                <div style="display:flex;justify-content:space-between;"><span>Goal</span><strong>${user.fitness_goal || '--'}</strong></div>
+                <div style="display:flex;justify-content:space-between;"><span>BMI</span><strong>${user.bmi || '--'}</strong></div>
+            </div>`;
+
+        // Progress summary
+        const p = hist.progress;
+        if (p && p.current_weight) {
+            const isLoss = p.target_weight < p.start_weight;
+            const pct = Math.min(p.percent, 100);
+            document.getElementById('progress-summary').innerHTML = `
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;text-align:center;margin-bottom:1.5rem;">
+                    <div>
+                        <div style="font-size:2rem;font-weight:800;color:hsl(var(--primary));">${p.current_weight}</div>
+                        <div style="font-size:0.7rem;color:hsl(var(--muted-foreground));text-transform:uppercase;font-weight:700;">Current kg</div>
+                    </div>
+                    <div>
+                        <div style="font-size:2rem;font-weight:800;color:${p.on_track ? 'hsl(var(--success))' : 'hsl(var(--accent))'};">${p.change > 0 ? '+' : ''}${p.change}</div>
+                        <div style="font-size:0.7rem;color:hsl(var(--muted-foreground));text-transform:uppercase;font-weight:700;">Change kg</div>
+                    </div>
+                    <div>
+                        <div style="font-size:2rem;font-weight:800;color:hsl(var(--primary));">${p.remaining}</div>
+                        <div style="font-size:0.7rem;color:hsl(var(--muted-foreground));text-transform:uppercase;font-weight:700;">Remaining kg</div>
+                    </div>
+                </div>
+                <div style="margin-bottom:0.75rem;display:flex;justify-content:space-between;font-size:0.8rem;">
+                    <span>Start: ${p.start_weight} kg</span>
+                    <span style="color:hsl(var(--primary));font-weight:700;">${pct}% complete</span>
+                    <span>Target: ${p.target_weight} kg</span>
+                </div>
+                <div class="progress-bar" style="height:0.875rem;border-radius:9999px;">
+                    <div style="width:${pct}%;height:100%;background:var(--gradient-primary);border-radius:9999px;transition:width 0.8s ease;"></div>
+                </div>
+                <div style="margin-top:0.75rem;text-align:center;font-size:0.8rem;color:${p.on_track ? 'hsl(var(--success))' : 'hsl(var(--accent))'};">
+                    ${p.on_track ? '✅ You\'re on track!' : '⚠️ Behind target — stay consistent!'}
+                </div>`;
+        } else {
+            document.getElementById('progress-summary').innerHTML = `
+                <div style="text-align:center;padding:2rem;">
+                    <i class="fas fa-chart-line" style="font-size:2rem;color:hsl(var(--muted-foreground));margin-bottom:1rem;opacity:0.4;"></i>
+                    <p style="color:hsl(var(--muted-foreground));">Log your weight daily to see your progress chart here.</p>
+                </div>`;
+        }
+
+        // History list
+        if (hist.logs?.length) {
+            document.getElementById('weight-history-list').innerHTML = hist.logs.map(l => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.625rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <div>
+                        <div style="font-weight:600;">${l.weight} kg</div>
+                        ${l.notes ? `<div style="font-size:0.72rem;color:hsl(var(--muted-foreground));font-style:italic;">${l.notes}</div>` : ''}
+                    </div>
+                    <div style="font-size:0.75rem;color:hsl(var(--muted-foreground));">${l.log_date}</div>
+                </div>`).join('');
+        }
+    } catch(e) { console.error(e); }
+}
+
+// ── TODAY'S MEALS ──────────────────────────────────────────────────────────
+async function loadTodayDiet() {
+    const container = document.getElementById('today-diet-container');
+    try {
+        const res = await fetch(`/api/diet/today/${userId}`);
+        const data = await res.json();
+        if (!data.success) {
+            container.innerHTML = `
+            <div class="glass-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:350px;text-align:center;border-style:dashed;border-width:2px;">
+                <i class="fas fa-utensils" style="font-size:2.5rem;color:hsl(var(--muted-foreground));margin-bottom:1.5rem;opacity:0.4;"></i>
+                <h3 style="margin-bottom:0.5rem;">No Diet Plan Yet</h3>
+                <p style="color:hsl(var(--muted-foreground));font-size:0.875rem;margin-bottom:1.5rem;max-width:300px;">Generate your weekly meal plan first.</p>
+                <button class="btn btn-hero glow-primary" onclick="switchTab('generate')"><i class="fas fa-wand-magic-sparkles"></i> Generate My Plan</button>
+            </div>`;
+            return;
+        }
+
+        const day = data.today;
+        const ms = data.meal_status || {};
+        const completedCount = Object.values(ms).filter(m => m.completed).length;
+        const totalMeals = day.meals?.length || 0;
+        const totalCals = (day.meals||[]).reduce((s,m) => s+(m.calories||0), 0);
+        const consumedCals = (day.meals||[]).reduce((s,m,i) => s+(ms[i]?.completed ? (m.calories||0) : 0), 0);
+        const isTraining = day.workout_type !== 'rest';
+
+        // Workout completion status
+        const wcRes = await fetch(`/api/workout/completion_status/${userId}`);
+        const wcData = await wcRes.json();
+        const workoutDone = wcData.today?.completed;
+        todayWorkoutFocus = day.workout_focus || '';
+
+        container.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:2rem;">
+            <div>
+                <!-- Day header -->
+                <div class="glass-card" style="margin-bottom:1.5rem;background:${isTraining ? 'hsla(185,100%,50%,0.05)' : 'hsla(150,80%,45%,0.05)'};border-color:${isTraining ? 'hsla(185,100%,50%,0.2)' : 'hsla(150,80%,45%,0.2)'};">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
+                        <div>
+                            <div style="font-size:0.7rem;font-weight:700;color:${isTraining ? 'hsl(var(--primary))' : 'hsl(var(--success))'};text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.25rem;">Day ${data.day_number} · ${data.plan_name}</div>
+                            <h2 style="font-size:1.5rem;font-weight:800;">${day.day_name} — <span style="color:${isTraining ? 'hsl(var(--primary))' : 'hsl(var(--success))'};">${day.workout_focus}</span></h2>
+                        </div>
+                        <div style="display:flex;gap:0.875rem;flex-wrap:wrap;">
+                            <div style="text-align:center;padding:.5rem 1rem;background:hsla(210,40%,98%,.05);border-radius:.5rem;">
+                                <div style="font-size:1.125rem;font-weight:800;color:hsl(var(--primary));">${day.target_calories||totalCals}</div>
+                                <div style="font-size:.65rem;color:hsl(var(--muted-foreground));text-transform:uppercase;">Target kcal</div>
+                            </div>
+                            ${isTraining ? `
+                            <div style="text-align:center;padding:.5rem 1rem;background:hsla(15,90%,60%,.08);border-radius:.5rem;">
+                                <div style="font-size:1.125rem;font-weight:800;color:hsl(var(--accent));">~${day.calories_burned||300}</div>
+                                <div style="font-size:.65rem;color:hsl(var(--muted-foreground));text-transform:uppercase;">Burned kcal</div>
+                            </div>` : ''}
+                        </div>
+                    </div>
+                    <!-- Macros -->
+                    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem;">
+                        <span style="font-size:.8rem;font-weight:600;color:hsl(var(--accent));"><i class="fas fa-drumstick-bite" style="margin-right:.3rem;"></i>P: ${day.macros?.protein?.grams||0}g</span>
+                        <span style="font-size:.8rem;font-weight:600;color:#fbbf24;"><i class="fas fa-bread-slice" style="margin-right:.3rem;"></i>C: ${day.macros?.carbs?.grams||0}g</span>
+                        <span style="font-size:.8rem;font-weight:600;color:#10b981;"><i class="fas fa-oil-can" style="margin-right:.3rem;"></i>F: ${day.macros?.fats?.grams||0}g</span>
+                    </div>
+                    <!-- Workout completion row -->
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem;background:hsla(210,40%,98%,.03);border-radius:.625rem;border:1px solid rgba(255,255,255,.05);">
+                        <div style="display:flex;align-items:center;gap:.75rem;">
+                            <i class="fas fa-dumbbell" style="color:${workoutDone ? 'hsl(var(--success))' : 'hsl(var(--muted-foreground))'}"></i>
+                            <div>
+                                <div style="font-size:.8rem;font-weight:600;">${isTraining ? `Workout: ${day.workout_focus}` : 'Rest Day'}</div>
+                                <div style="font-size:.7rem;color:hsl(var(--muted-foreground));">${workoutDone ? '✅ Completed' : (isTraining ? 'Not logged yet' : 'Recovery day')}</div>
+                            </div>
+                        </div>
+                        ${isTraining && !workoutDone ? `<button class="btn btn-ghost" style="font-size:.75rem;border:1px solid rgba(255,255,255,.1);" onclick="openWorkoutModal()"><i class="fas fa-check"></i> Mark Done</button>` : ''}
+                        ${workoutDone ? `<span style="font-size:.75rem;color:hsl(var(--success));font-weight:700;">+${10 + (wcData.today?.duration||45)} XP</span>` : ''}
+                    </div>
+                    ${day.day_tip ? `<div style="margin-top:.875rem;padding:.625rem;background:hsla(210,40%,98%,.03);border-radius:.5rem;font-size:.78rem;color:hsl(var(--muted-foreground));"><i class="fas fa-lightbulb" style="color:hsl(var(--accent));margin-right:.4rem;"></i>${day.day_tip}</div>` : ''}
+                </div>
+
+                <!-- Meals -->
+                <div style="font-size:.7rem;font-weight:700;color:hsl(var(--muted-foreground));text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem;">Tap each meal to log it</div>
+                ${(day.meals||[]).map((meal,i) => {
+                    const s = ms[i];
+                    const done = s?.completed;
+                    const skip = s && !s.completed;
+                    return `
+                    <div class="glass-card meal-card ${done ? 'done' : skip ? 'skipped' : ''}" id="meal-card-${i}"
+                         onclick="openMealModal(${i}, ${JSON.stringify(meal).replace(/"/g,'&quot;')})"
+                         style="display:flex;gap:1.25rem;align-items:flex-start;margin-bottom:.875rem;">
+                        <div style="width:3rem;height:3rem;border-radius:.75rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;
+                            background:${done ? 'hsla(150,80%,45%,.2)' : skip ? 'hsla(0,84%,60%,.1)' : 'hsla(185,100%,50%,.1)'};
+                            color:${done ? 'hsl(var(--success))' : skip ? 'hsl(var(--destructive))' : 'hsl(var(--primary))'};">
+                            ${done ? '<i class="fas fa-check"></i>' : skip ? '<i class="fas fa-times"></i>' : `<span style="font-size:.875rem;">${i+1}</span>`}
+                        </div>
+                        <div style="flex:1;">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.375rem;flex-wrap:wrap;gap:.5rem;">
+                                <div>
+                                    <div style="font-size:.65rem;color:hsl(var(--muted-foreground));font-weight:700;text-transform:uppercase;">${meal.meal} · ${meal.time||''}</div>
+                                    <h4 style="font-size:.975rem;font-weight:700;${done ? 'text-decoration:line-through;opacity:.7;' : ''}">${meal.name}</h4>
+                                    ${meal.workout_note ? `<div style="font-size:.72rem;color:hsl(var(--primary));font-style:italic;">${meal.workout_note}</div>` : ''}
+                                </div>
+                                <span class="xp-badge">${meal.calories} kcal</span>
+                            </div>
+                            <div style="display:flex;gap:1.25rem;font-size:.72rem;font-weight:600;color:hsl(var(--muted-foreground));margin-bottom:${meal.ingredients?.length ? '.375rem' : '0'};">
+                                <span style="color:hsl(var(--accent));">P ${meal.protein}g</span>
+                                <span style="color:#fbbf24;">C ${meal.carbs}g</span>
+                                <span style="color:#10b981;">F ${meal.fats}g</span>
+                            </div>
+                            ${meal.ingredients?.length ? `<div style="font-size:.72rem;color:hsl(var(--muted-foreground));opacity:.7;">${meal.ingredients.join(' · ')}</div>` : ''}
+                            ${s?.feedback ? `<div style="margin-top:.375rem;padding:.25rem .5rem;background:hsla(210,40%,98%,.05);border-radius:.375rem;font-size:.7rem;font-style:italic;">"${s.feedback}"</div>` : ''}
+                        </div>
+                        <div style="font-size:.72rem;color:${done ? 'hsl(var(--success))' : skip ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))'}; white-space:nowrap; align-self:center;">
+                            ${done ? '✓ Ate it' : skip ? 'Skipped' : 'Tap to log'}
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
+
+            <!-- Sidebar -->
+            <div style="display:flex;flex-direction:column;gap:1.5rem;">
+                <!-- Today's progress -->
+                <div class="glass-card">
+                    <div style="font-size:.75rem;font-weight:700;color:hsl(var(--muted-foreground));text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem;">Today's Progress</div>
+                    <div style="text-align:center;margin-bottom:1.25rem;">
+                        <div style="font-size:2.5rem;font-weight:800;color:hsl(var(--primary));">${completedCount}<span style="font-size:1rem;color:hsl(var(--muted-foreground));">/${totalMeals}</span></div>
+                        <div style="font-size:.75rem;color:hsl(var(--muted-foreground));">Meals eaten</div>
+                    </div>
+                    <div class="progress-bar" style="height:.625rem;margin-bottom:.75rem;">
+                        <div class="progress-fill" style="width:${totalMeals ? Math.round(completedCount/totalMeals*100) : 0}%;background:var(--gradient-primary);"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:.8rem;">
+                        <span style="color:hsl(var(--muted-foreground));">Consumed</span>
+                        <span style="font-weight:700;color:hsl(var(--primary));">${consumedCals} / ${totalCals} kcal</span>
+                    </div>
+                </div>
+
+                <!-- Calorie breakdown -->
+                ${isTraining ? `
+                <div class="glass-card" style="background:hsla(15,90%,60%,.05);border-color:hsla(15,90%,60%,.1);">
+                    <div style="font-size:.75rem;font-weight:700;color:hsl(var(--accent));text-transform:uppercase;margin-bottom:.75rem;"><i class="fas fa-fire" style="margin-right:.4rem;"></i>Calorie Balance</div>
+                    <div style="display:flex;flex-direction:column;gap:.5rem;font-size:.8rem;">
+                        <div style="display:flex;justify-content:space-between;"><span style="color:hsl(var(--muted-foreground));">Consumed</span><span>${consumedCals} kcal</span></div>
+                        <div style="display:flex;justify-content:space-between;"><span style="color:hsl(var(--muted-foreground));">Workout burns</span><span style="color:hsl(var(--accent));">−${day.calories_burned||0} kcal</span></div>
+                        <div style="height:1px;background:rgba(255,255,255,.05);"></div>
+                        <div style="display:flex;justify-content:space-between;"><span style="font-weight:700;">Net</span><span style="font-weight:800;color:hsl(var(--success));">${consumedCals - (day.calories_burned||0)} kcal</span></div>
+                    </div>
+                </div>` : ''}
+
+                <!-- Log weight shortcut -->
+                <div class="glass-card" style="background:hsla(185,100%,50%,.04);">
+                    <div style="font-size:.75rem;font-weight:700;color:hsl(var(--muted-foreground));text-transform:uppercase;margin-bottom:.75rem;">⚖️ Today's Weight</div>
+                    <div style="display:flex;gap:.5rem;">
+                        <input type="number" id="quick-weight" class="form-control" placeholder="kg" step="0.1" style="flex:1;">
+                        <button class="btn btn-hero" style="white-space:nowrap;" onclick="quickLogWeight()">Save</button>
+                    </div>
+                </div>
+
+                ${day.hydration ? `
+                <div class="glass-card" style="background:hsla(185,100%,50%,.03);">
+                    <div style="font-size:.75rem;font-weight:700;color:hsl(var(--primary));text-transform:uppercase;margin-bottom:.5rem;"><i class="fas fa-tint" style="margin-right:.4rem;"></i>Hydration</div>
+                    <p style="font-size:.8rem;color:hsl(var(--muted-foreground));line-height:1.5;">${day.hydration}</p>
+                </div>` : ''}
+            </div>
+        </div>`;
+
+        window._todayMeals = day.meals || [];
+        window._mealStatus = ms;
+    } catch(e) { console.error(e); }
+}
+
+async function quickLogWeight() {
+    const w = document.getElementById('quick-weight').value;
+    if (!w) return;
+    await doLogWeight(w, '');
+    document.getElementById('quick-weight').value = '';
+}
+
+// ── MEAL MODAL ─────────────────────────────────────────────────────────────
+function openMealModal(index, meal) {
+    currentModalMeal = {index, meal};
+    document.getElementById('modal-meal-name').textContent = meal.name;
+    document.getElementById('modal-meal-meta').textContent = `${meal.meal} · ${meal.time||''} · ${meal.calories} kcal · P${meal.protein}g C${meal.carbs}g F${meal.fats}g`;
+    document.getElementById('modal-feedback').value = window._mealStatus?.[index]?.feedback || '';
+    document.getElementById('meal-modal').style.display = 'flex';
+}
+async function submitMealLog(completed) {
+    if (!currentModalMeal) return;
+    const {index, meal} = currentModalMeal;
+    const feedback = document.getElementById('modal-feedback').value.trim();
+    closeModal('meal-modal');
+    try {
+        const res = await fetch('/api/diet/meal_log', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({user_id: userId, meal_index: index, meal_name: meal.name, completed, feedback})
+        });
+        const data = await res.json();
+        if (data.success) {
+            if (completed) showToast(`Logged! +${data.xp_earned} XP 🥗`, 'success');
+            else showToast('Meal marked as skipped', 'info');
+            await Promise.all([loadTodayDiet(), loadCheckinStrip()]);
+        }
+    } catch(e) { showToast('Failed to log meal', 'error'); }
+}
+
+// ── WEEKLY PLAN ────────────────────────────────────────────────────────────
+async function loadWeeklyPlan() {
+    const container = document.getElementById('weekly-plan-container');
+    try {
+        const res = await fetch(`/api/diet/plan/${userId}`);
+        const data = await res.json();
+        if (!data.success) {
+            container.innerHTML = `
+            <div class="glass-card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:350px;text-align:center;border-style:dashed;border-width:2px;">
+                <h3 style="margin-bottom:.5rem;">No Weekly Plan</h3>
+                <p style="color:hsl(var(--muted-foreground));font-size:.875rem;margin-bottom:1.5rem;">Generate your 7-day plan first.</p>
+                <button class="btn btn-hero" onclick="switchTab('generate')"><i class="fas fa-wand-magic-sparkles"></i> Generate Plan</button>
+            </div>`;
+            return;
+        }
+        const plan = data.plan;
+        const days = plan.weekly_days || [];
+        container.innerHTML = `
+        <div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h3 style="font-size:1.25rem;font-weight:700;">${plan.plan_name||'7-Day Plan'}</h3>
+                    <div style="font-size:.8rem;color:hsl(var(--muted-foreground));">Base TDEE: ${plan.base_tdee} kcal/day · Started ${data.start_date}</div>
+                </div>
+                <button class="btn btn-glass btn-sm" onclick="switchTab('generate')"><i class="fas fa-refresh"></i> Regenerate</button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:.5rem;margin-bottom:2rem;">
+                ${days.map((d,i) => `
+                <div style="text-align:center;">
+                    <div style="font-size:.65rem;color:hsl(var(--muted-foreground));margin-bottom:.375rem;">${(d.day_name||'').slice(0,3)}</div>
+                    <div style="height:56px;background:hsla(210,40%,98%,.05);border-radius:.5rem;display:flex;align-items:flex-end;overflow:hidden;border:1px solid rgba(255,255,255,.05);">
+                        <div style="width:100%;height:${Math.min(Math.round((d.target_calories||2000)/35),56)}px;background:${d.workout_type==='rest' ? 'hsla(150,80%,45%,.4)' : 'var(--gradient-primary)'};"></div>
+                    </div>
+                    <div style="font-size:.65rem;font-weight:700;margin-top:.25rem;color:${d.workout_type==='rest' ? 'hsl(var(--success))' : 'hsl(var(--primary))'};">${d.target_calories||'--'}</div>
+                </div>`).join('')}
+            </div>
+            ${days.map((day,i) => `
+            <div class="glass-card" style="margin-bottom:1rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;" onclick="toggleDay(${i})">
+                    <div style="display:flex;align-items:center;gap:1rem;">
+                        <div style="width:2.5rem;height:2.5rem;border-radius:.75rem;display:flex;align-items:center;justify-content:center;background:${day.workout_type==='rest' ? 'hsla(150,80%,45%,.1)' : 'hsla(185,100%,50%,.1)'};color:${day.workout_type==='rest' ? 'hsl(var(--success))' : 'hsl(var(--primary))'};">
+                            <i class="fas ${day.workout_type==='rest' ? 'fa-couch' : 'fa-dumbbell'}"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:700;">${day.day_name} — ${day.workout_focus}</div>
+                            <div style="font-size:.75rem;color:hsl(var(--muted-foreground));">${day.target_calories} kcal · P${day.macros?.protein?.grams||0}g C${day.macros?.carbs?.grams||0}g F${day.macros?.fats?.grams||0}g</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down" id="day-ch-${i}" style="font-size:.75rem;color:hsl(var(--muted-foreground));transition:transform .2s;"></i>
+                </div>
+                <div id="day-detail-${i}" style="display:none;padding-top:1.25rem;border-top:1px solid rgba(255,255,255,.05);margin-top:1rem;">
+                    ${(day.meals||[]).map((m,mi) => `
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:.625rem 0;border-bottom:1px solid rgba(255,255,255,.04);">
+                        <div style="flex:1;">
+                            <div style="font-size:.65rem;color:hsl(var(--muted-foreground));text-transform:uppercase;font-weight:700;">${m.meal} · ${m.time||''}</div>
+                            <div style="font-weight:600;font-size:.875rem;">${m.name}</div>
+                            <div style="font-size:.72rem;color:hsl(var(--muted-foreground));">P${m.protein}g · C${m.carbs}g · F${m.fats}g</div>
+                            ${m.ingredients?.length ? `<div style="font-size:.7rem;color:hsl(var(--muted-foreground));opacity:.7;margin-top:.2rem;">${m.ingredients.join(', ')}</div>` : ''}
+                        </div>
+                        <span class="xp-badge" style="font-size:.7rem;margin-left:.75rem;">${m.calories} kcal</span>
+                    </div>`).join('')}
+                    ${day.day_tip ? `<div style="margin-top:.75rem;font-size:.78rem;color:hsl(var(--muted-foreground));"><i class="fas fa-lightbulb" style="color:hsl(var(--accent));margin-right:.4rem;"></i>${day.day_tip}</div>` : ''}
+                </div>
+            </div>`).join('')}
+        </div>`;
+    } catch(e) { console.error(e); }
+}
+
+function toggleDay(i) {
+    const el = document.getElementById(`day-detail-${i}`);
+    const ch = document.getElementById(`day-ch-${i}`);
+    const open = el.style.display !== 'none';
+    el.style.display = open ? 'none' : 'block';
+    ch.style.transform = open ? '' : 'rotate(180deg)';
+}
+
+// ── GENERATE ───────────────────────────────────────────────────────────────
+async function loadGenSetup() {
+    try {
+        const [userRes, planRes] = await Promise.all([
+            fetch(`/api/user/${userId}`),
+            fetch(`/api/workout/plan/${userId}`)
+        ]);
+        const user = await userRes.json();
+        const plan = await planRes.json();
+
+        if (user.weight) document.getElementById('gen-current-weight').value = user.weight;
+        if (user.target_weight) document.getElementById('gen-target-weight').value = user.target_weight;
+        if (user.food_preference) {
+            const map = {'non-vegetarian':'nonveg','vegetarian':'veg','vegan':'vegan'};
+            highlightPref('gen', user.food_preference);
+            const r = document.querySelector(`input[name="gen-pref"][value="${user.food_preference}"]`);
+            if (r) r.checked = true;
+        }
+
+        if (plan.success && plan.plan) {
+            const schedule = plan.plan.weekly_schedule || plan.plan;
+            document.getElementById('gen-workout-content').innerHTML = schedule.slice(0,7).map(d =>
+                `<div style="display:flex;justify-content:space-between;padding:.2rem 0;font-size:.8rem;">
+                    <span>${d.day}</span>
+                    <span style="color:${d.type==='rest' ? 'hsl(var(--success))' : 'hsl(var(--primary))'};">${d.focus}</span>
+                </div>`).join('');
+        } else {
+            document.getElementById('gen-workout-content').innerHTML = '<span style="color:hsl(var(--accent));font-size:.8rem;">No workout plan — <a href="/workout" style="color:hsl(var(--primary));">generate one first</a> for best results.</span>';
+        }
+    } catch(e) {}
+}
+
+function highlightPref(prefix, value) {
+    const map = {'non-vegetarian':'nonveg','vegetarian':'veg','vegan':'vegan'};
+    ['nonveg','veg','vegan'].forEach(k => {
+        const el = document.getElementById(`${prefix}-${k}`);
+        if (el) el.style.background = '';
+    });
+}
+
+async function generateWeeklyDiet() {
+    const btn = document.getElementById('gen-btn');
+    const output = document.getElementById('gen-output');
+    const currentW = document.getElementById('gen-current-weight').value;
+    const targetW = document.getElementById('gen-target-weight').value;
+    const foodPref = document.querySelector('input[name="gen-pref"]:checked')?.value || 'non-vegetarian';
+
+    if (!targetW) { showToast('Please enter your target weight', 'error'); return; }
+
+    // Save target weight and preference to profile first
+    try {
+        await fetch(`/api/user/${userId}`, {
+            method: 'PATCH',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({target_weight: parseFloat(targetW), food_preference: foodPref, weight: parseFloat(currentW)||undefined})
+        });
+    } catch(e) {}
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Generating...';
+    output.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center;">
+        <div class="animate-pulse" style="color:hsl(var(--primary));font-size:2rem;margin-bottom:1rem;"><i class="fas fa-dna"></i></div>
+        <p style="color:hsl(var(--muted-foreground));margin-bottom:.5rem;">Building your 7-day plan...</p>
+        <p style="font-size:.75rem;color:hsl(var(--muted-foreground));opacity:.6;">Target: ${targetW}kg · Diet: ${foodPref} · Syncing with workouts</p>
+    </div>`;
+
+    try {
+        const res = await fetch('/api/diet/generate_weekly', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({user_id: userId})
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('7-day meal plan created! 🥗', 'success');
+            output.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;text-align:center;">
+                <i class="fas fa-check-circle" style="font-size:3rem;color:hsl(var(--success));margin-bottom:1rem;"></i>
+                <h3 style="margin-bottom:.5rem;">${data.plan.plan_name}</h3>
+                <p style="color:hsl(var(--muted-foreground));margin-bottom:1.5rem;">Goal: ${currentW}kg → ${targetW}kg · ${foodPref}</p>
+                <div style="display:flex;gap:1rem;">
+                    <button class="btn btn-hero" onclick="switchTab('today')"><i class="fas fa-calendar-day"></i> See Today</button>
+                    <button class="btn btn-glass" onclick="switchTab('week')"><i class="fas fa-calendar-week"></i> Full Week</button>
+                </div>`;
+            await Promise.all([loadTodayDiet(), loadWeeklyPlan()]);
+        } else {
+            output.innerHTML = `<div style="color:hsl(var(--destructive));padding:2rem;">${data.error||'Generation failed'}</div>`;
+        }
+    } catch(e) {
+        output.innerHTML = `<div style="color:hsl(var(--destructive));padding:2rem;">${e.message}</div>`;
+    }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-bolt"></i> Generate 7-Day Plan';
+}
+
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+</script>
+{% endblock %}

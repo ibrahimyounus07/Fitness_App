@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - FitFusion{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Welcome Header -->
+    <div class="page-header">
+        <h1 class="page-title">Welcome back, <span class="text-gradient-primary" id="dash-username">User</span>!</h1>
+        <p class="page-subtitle">Ready to crush your fitness goals today?</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div
+                    style="width: 2.5rem; height: 2.5rem; background: hsla(185, 100%, 50%, 0.1); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: hsl(var(--primary));">
+                    <i class="fas fa-dumbbell"></i>
+                </div>
+                <div
+                    style="font-size: 0.75rem; font-weight: 600; color: hsl(var(--success)); background: hsla(150, 80%, 45%, 0.1); padding: 0.25rem 0.5rem; border-radius: 9999px;">
+                    +12% <i class="fas fa-arrow-up"></i>
+                </div>
+            </div>
+            <div style="font-size: 1.875rem; font-weight: 700; font-family: 'Space Grotesk';" id="dash-workouts">0</div>
+            <div style="font-size: 0.875rem; color: hsl(var(--muted-foreground));">Active Workouts</div>
+        </div>
+
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div
+                    style="width: 2.5rem; height: 2.5rem; background: hsla(15, 90%, 60%, 0.1); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: hsl(var(--accent));">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div
+                    style="font-size: 0.75rem; font-weight: 600; color: hsl(var(--success)); background: hsla(150, 80%, 45%, 0.1); padding: 0.25rem 0.5rem; border-radius: 9999px;">
+                    +5% <i class="fas fa-arrow-up"></i>
+                </div>
+            </div>
+            <div style="font-size: 1.875rem; font-weight: 700; font-family: 'Space Grotesk';" id="dash-calories">0</div>
+            <div style="font-size: 0.875rem; color: hsl(var(--muted-foreground));">Calories Burned</div>
+        </div>
+
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div
+                    style="width: 2.5rem; height: 2.5rem; background: hsla(185, 100%, 50%, 0.1); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: hsl(var(--primary));">
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+            <div style="font-size: 1.875rem; font-weight: 700; font-family: 'Space Grotesk';" id="dash-xp">0</div>
+            <div style="font-size: 0.875rem; color: hsl(var(--muted-foreground));">Total XP</div>
+        </div>
+
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div
+                    style="width: 2.5rem; height: 2.5rem; background: hsla(15, 90%, 60%, 0.1); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: hsl(var(--accent));">
+                    <i class="fas fa-bolt"></i>
+                </div>
+            </div>
+            <div style="font-size: 1.875rem; font-weight: 700; font-family: 'Space Grotesk';" id="dash-streak">0</div>
+            <div style="font-size: 0.875rem; color: hsl(var(--muted-foreground));">Day Streak</div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div style="display: grid; grid-template-columns: 1fr 340px; gap: 2rem;">
+        <!-- Left Column -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Challenge Card -->
+            <div class="glass-card" style="background: var(--gradient-primary); border: none; padding: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2 style="font-size: 1.5rem; color: hsl(var(--primary-foreground)); margin-bottom: 0.5rem;">
+                            Ready for your next challenge?</h2>
+                        <p style="color: hsla(220, 20%, 4%, 0.7); font-weight: 500;">Complete today's targeted workout
+                            to maintain your streak.</p>
+                    </div>
+                    <a href="/workout" class="btn btn-glass"
+                        style="background: hsla(220, 20%, 4%, 0.1); border-color: hsla(220, 20%, 4%, 0.1); color: hsl(var(--primary-foreground)); font-size: 1rem; padding: 0.75rem 1.5rem;">
+                        Start Workout <i class="fas fa-play"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Active Workouts -->
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.25rem;">Active Workouts</h3>
+                    <a href="/workout" style="font-size: 0.875rem; color: hsl(var(--primary));">View all</a>
+                </div>
+                <div id="active-workouts-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- Placeholder for dynamic content -->
+                    <div style="padding: 2rem; text-align: center; color: hsl(var(--muted-foreground));">
+                        Loading your workout plan...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- AI Insights -->
+            <div class="glass-card" style="background: hsla(185, 100%, 50%, 0.05);">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                    <i class="fas fa-brain" style="color: hsl(var(--primary));"></i>
+                    <h3 style="font-size: 1rem;">AI Insights</h3>
+                </div>
+                <p style="font-size: 0.875rem; color: hsl(var(--muted-foreground)); line-height: 1.6; margin-bottom: 1rem;"
+                    id="ai-insight-text">
+                    Loading AI suggestions based on your recent activity...
+                </p>
+                <div
+                    style="font-size: 0.75rem; font-weight: 600; color: hsl(var(--primary)); display: flex; align-items: center; gap: 0.5rem;">
+                    <span
+                        style="width: 0.375rem; height: 0.375rem; background: hsl(var(--primary)); border-radius: 50%;"></span>
+                    High consistency detected
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="glass-card">
+                <h3 style="font-size: 1rem; margin-bottom: 1.25rem;">Quick Actions</h3>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <a href="/monitor" class="btn btn-hero btn-full">
+                        <i class="fas fa-camera"></i> AI Pose Monitor
+                    </a>
+                    <a href="/nutrition" class="btn btn-glass btn-full">
+                        <i class="fas fa-apple-alt"></i> Scan My Meal
+                    </a>
+                    <a href="/chatbot" class="btn btn-ghost btn-full" style="border: 1px solid hsl(var(--border));">
+                        <i class="fas fa-robot"></i> Ask AI Coach
+                    </a>
+                </div>
+            </div>
+
+            <!-- BMI Info -->
+            <div class="glass-card" id="bmi-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-size: 0.875rem; color: hsl(var(--muted-foreground));">Your BMI</span>
+                    <span class="xp-badge" style="font-size: 0.75rem;" id="dash-bmi-val">—</span>
+                </div>
+                <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));" id="bmi-status">Enter your details
+                    to calculate</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        const userId = localStorage.getItem('fitai_user_id');
+        if (!userId) { window.location.href = '/'; return; }
+
+        try {
+            const [userRes, planRes] = await Promise.all([
+                fetch(`/api/user/${userId}`),
+                fetch(`/api/workout/plan/${userId}`)
+            ]);
+            const user = await userRes.json();
+            const plan = await planRes.json();
+
+            // Update UI
+            document.getElementById('dash-username').textContent = user.username || 'User';
+            const g = user.gamification || {};
+            document.getElementById('dash-xp').textContent = g.total_xp || 0;
+            document.getElementById('dash-streak').textContent = g.streak_days || 0;
+            document.getElementById('dash-workouts').textContent = g.total_workouts || 0;
+            document.getElementById('dash-calories').textContent = (g.total_workouts || 0) * 350; // Mock calculation
+
+            if (user.bmi) {
+                document.getElementById('dash-bmi-val').textContent = user.bmi;
+                const bmiCat = user.bmi < 18.5 ? 'Underweight' : user.bmi < 25 ? 'Normal ✅' : user.bmi < 30 ? 'Overweight ⚠️' : 'Obese ❗';
+                document.getElementById('bmi-status').textContent = `Status: ${bmiCat}`;
+            }
+
+            // AI Insight
+            const insights = [
+                "Your protein intake yesterday was optimal. Keep it up for muscle recovery!",
+                "You haven't logged a leg workout in 3 days. Ready for some squats?",
+                "Your workout consistency has improved by 20% this week. Great progress!",
+                "Late night activity detected? Remember that 8h of sleep is crucial for gains."
+            ];
+            document.getElementById('ai-insight-text').textContent = insights[Math.floor(Math.random() * insights.length)];
+
+            // Workout List — handle both old array format and new {weekly_schedule} format
+            const list = document.getElementById('active-workouts-list');
+            let schedule = null;
+            if (plan.success && plan.plan) {
+                schedule = Array.isArray(plan.plan)
+                    ? plan.plan
+                    : (plan.plan.weekly_schedule || null);
+            }
+
+            if (schedule && schedule.length > 0) {
+                // Also load today's workout to highlight it
+                let todayIndex = -1;
+                try {
+                    const todayRes = await fetch(`/api/workout/today/${userId}`);
+                    const todayData = await todayRes.json();
+                    if (todayData.success) todayIndex = todayData.day_index - 1;
+                } catch(e) {}
+
+                list.innerHTML = schedule.slice(0, 4).map((day, i) => {
+                    const isToday = i === todayIndex;
+                    const isRest = day.type === 'rest';
+                    const exCount = day.exercises ? day.exercises.length : 0;
+                    return `
+                    <a href="/workout#today" style="text-decoration:none;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1rem;
+                        background:${isToday ? 'hsla(185,100%,50%,0.08)' : 'hsla(210,40%,98%,0.03)'};
+                        border-radius:0.75rem;
+                        border:1px solid ${isToday ? 'hsla(185,100%,50%,0.3)' : 'hsla(210,40%,98%,0.05)'};
+                        transition:all 0.2s;">
+                        <div style="display:flex; align-items:center; gap:0.875rem;">
+                            <div style="width:2.25rem; height:2.25rem;
+                                background:${isRest ? 'hsla(150,80%,45%,0.1)' : 'hsla(185,100%,50%,0.1)'};
+                                border-radius:0.5rem; display:flex; align-items:center; justify-content:center;
+                                color:${isRest ? 'hsl(var(--success))' : 'hsl(var(--primary))'};">
+                                <i class="fas ${isRest ? 'fa-couch' : 'fa-dumbbell'}" style="font-size:0.875rem;"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:600; font-size:0.875rem; display:flex; align-items:center; gap:0.5rem;">
+                                    ${day.day}
+                                    ${isToday ? '<span style="font-size:0.65rem;padding:0.15rem 0.5rem;background:hsla(185,100%,50%,0.15);color:hsl(var(--primary));border-radius:9999px;font-weight:700;">TODAY</span>' : ''}
+                                </div>
+                                <div style="font-size:0.72rem; color:hsl(var(--muted-foreground));">
+                                    ${isRest ? 'Rest & Recovery' : day.focus + (exCount ? ' · ' + exCount + ' exercises' : '')}
+                                </div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color:hsl(var(--muted-foreground)); font-size:0.75rem;"></i>
+                    </div>
+                    </a>`;
+                }).join('');
+            } else {
+                list.innerHTML = `
+                <div style="text-align:center; padding:2rem; background:hsla(210,40%,98%,0.03); border-radius:0.75rem; border:2px dashed hsla(210,40%,98%,0.1);">
+                    <p style="margin-bottom:1rem; color:hsl(var(--muted-foreground));">No active workout plan found.</p>
+                    <a href="/workout" class="btn btn-glass btn-sm">Generate Plan</a>
+                </div>`;
+            }
+
+        } catch (e) {
+            console.error(e);
+        }
+    });
+</script>
+{% endblock %}

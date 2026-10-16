@@ -1,0 +1,532 @@
+{% extends "base.html" %}
+{% block title %}Workout Planner - FitFusion{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <div class="page-header">
+        <h1 class="page-title">Train <span class="text-gradient-primary">Smarter</span></h1>
+        <p class="page-subtitle">AI-generated programs tailored to your equipment and performance levels.</p>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 2rem; background: hsla(210,40%,98%,0.03); padding: 0.375rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.05); width: fit-content;">
+        <button class="tab-btn active" id="tab-today" onclick="switchTab('today')">
+            <i class="fas fa-calendar-day"></i> Today's Workout
+        </button>
+        <button class="tab-btn" id="tab-plan" onclick="switchTab('plan')">
+            <i class="fas fa-th-list"></i> Full Program
+        </button>
+        <button class="tab-btn" id="tab-generate" onclick="switchTab('generate')">
+            <i class="fas fa-wand-magic-sparkles"></i> Generate New Plan
+        </button>
+    </div>
+
+    <!-- ── TAB: TODAY'S WORKOUT ── -->
+    <div id="tab-today-content">
+        <div id="today-workout-container">
+            <div class="glass-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:400px; text-align:center;">
+                <div class="animate-pulse" style="color:hsl(var(--primary)); font-size:2rem; margin-bottom:1rem;"><i class="fas fa-dumbbell"></i></div>
+                <p style="color:hsl(var(--muted-foreground));">Loading today's workout...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TAB: FULL PROGRAM ── -->
+    <div id="tab-plan-content" style="display:none;">
+        <div id="full-plan-container">
+            <div class="glass-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:400px; text-align:center;">
+                <div class="animate-pulse" style="color:hsl(var(--primary)); font-size:2rem; margin-bottom:1rem;"><i class="fas fa-th-list"></i></div>
+                <p style="color:hsl(var(--muted-foreground));">Loading your program...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TAB: GENERATE NEW PLAN ── -->
+    <div id="tab-generate-content" style="display:none;">
+        <div style="display: grid; grid-template-columns: 380px 1fr; gap: 2rem;">
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div class="glass-card">
+                    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem;">
+                        <div style="width:2.5rem; height:2.5rem; background:hsla(185,100%,50%,0.1); border-radius:0.75rem; display:flex; align-items:center; justify-content:center; color:hsl(var(--primary));">
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                        </div>
+                        <h3 style="font-size:1.125rem;">Generate Program</h3>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                        <div class="form-group">
+                            <label>Fitness Goal</label>
+                            <select class="form-control" id="w-goal">
+                                <option value="weight loss">Weight Loss</option>
+                                <option value="muscle gain">Muscle Gain</option>
+                                <option value="strength">Strength Training</option>
+                                <option value="maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Activity Level</label>
+                            <select class="form-control" id="w-activity">
+                                <option value="sedentary">Sedentary</option>
+                                <option value="lightly active">Lightly Active</option>
+                                <option value="moderately active">Moderately Active</option>
+                                <option value="very active">Very Active</option>
+                            </select>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                            <div class="form-group">
+                                <label>Weight (kg)</label>
+                                <input type="number" class="form-control" id="w-weight" placeholder="70" oninput="updateBMI()">
+                            </div>
+                            <div class="form-group">
+                                <label>Height (cm)</label>
+                                <input type="number" class="form-control" id="w-height" placeholder="175" oninput="updateBMI()">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Equipment</label>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.5rem;">
+                                <label class="glass-card" style="padding:0.75rem; cursor:pointer; display:flex; align-items:center; gap:0.5rem; font-size:0.75rem;">
+                                    <input type="checkbox" class="equipment-check" value="gym"> Gym (Full)
+                                </label>
+                                <label class="glass-card" style="padding:0.75rem; cursor:pointer; display:flex; align-items:center; gap:0.5rem; font-size:0.75rem;">
+                                    <input type="checkbox" class="equipment-check" value="dumbbells"> Dumbbells
+                                </label>
+                                <label class="glass-card" style="padding:0.75rem; cursor:pointer; display:flex; align-items:center; gap:0.5rem; font-size:0.75rem;">
+                                    <input type="checkbox" class="equipment-check" value="barbell"> Barbell
+                                </label>
+                                <label class="glass-card" style="padding:0.75rem; cursor:pointer; display:flex; align-items:center; gap:0.5rem; font-size:0.75rem;">
+                                    <input type="checkbox" class="equipment-check" value="pullup bar"> Pullup Bar
+                                </label>
+                                <label class="glass-card" style="padding:0.75rem; cursor:pointer; display:flex; align-items:center; gap:0.5rem; font-size:0.75rem;">
+                                    <input type="checkbox" class="equipment-check" value="bodyweight" checked> Bodyweight
+                                </label>
+                            </div>
+                        </div>
+                        <button class="btn btn-hero btn-full glow-primary" onclick="generateWorkout()" style="margin-top:1rem;">
+                            Generate Plan <i class="fas fa-bolt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="glass-card" style="background:hsla(185,100%,50%,0.03);">
+                    <div style="font-size:0.75rem; color:hsl(var(--muted-foreground)); margin-bottom:0.5rem;">DATA SOURCES</div>
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                        <span class="xp-badge" style="font-size:0.65rem;">Weight <span id="w-ctx-weight">--</span>kg</span>
+                        <span class="xp-badge" style="font-size:0.65rem;">Height <span id="w-ctx-height">--</span>cm</span>
+                        <span class="xp-badge" style="font-size:0.65rem;">BMI <span id="w-ctx-bmi">--</span></span>
+                    </div>
+                </div>
+            </div>
+            <div id="workout-output">
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:500px; text-align:center;" class="glass-card">
+                    <div style="width:4rem; height:4rem; background:hsla(185,100%,50%,0.1); border-radius:1rem; display:flex; align-items:center; justify-content:center; font-size:2rem; color:hsl(var(--primary)); margin-bottom:1.5rem;">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3 style="font-size:1.25rem; font-weight:700; margin-bottom:0.5rem;">AI Ready to Assist</h3>
+                    <p style="color:hsl(var(--muted-foreground)); max-width:280px; font-size:0.875rem;">Configure your preferences and click generate to build your custom 7-day program.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentPlan = null;
+
+    // ── Tab switching ──
+    function switchTab(tab) {
+        ['today', 'plan', 'generate'].forEach(t => {
+            document.getElementById(`tab-${t}-content`).style.display = t === tab ? 'block' : 'none';
+            document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+        });
+    }
+
+    // ── On page load ──
+    document.addEventListener('DOMContentLoaded', async () => {
+        const userId = localStorage.getItem('fitai_user_id');
+        if (!userId) { window.location.href = '/'; return; }
+
+        try {
+            const res = await fetch(`/api/user/${userId}`);
+            const user = await res.json();
+            if (user.weight) {
+                document.getElementById('w-ctx-weight').textContent = user.weight;
+                document.getElementById('w-ctx-height').textContent = user.height;
+                document.getElementById('w-ctx-bmi').textContent = user.bmi;
+                document.getElementById('w-weight').value = user.weight;
+                document.getElementById('w-height').value = user.height;
+            }
+            if (user.fitness_goal) document.getElementById('w-goal').value = user.fitness_goal;
+            if (user.activity_level) document.getElementById('w-activity').value = user.activity_level;
+        } catch (e) { console.error(e); }
+
+        await loadTodaysWorkout();
+        await loadFullPlan();
+
+        // If navigated with #today hash (e.g. from dashboard Start Workout)
+        if (window.location.hash === '#today') {
+            switchTab('today');
+        }
+    });
+
+    // ── Load today's workout ──
+    async function loadTodaysWorkout() {
+        const userId = localStorage.getItem('fitai_user_id');
+        const container = document.getElementById('today-workout-container');
+
+        try {
+            const res = await fetch(`/api/workout/today/${userId}`);
+            const data = await res.json();
+
+            if (!data.success) {
+                container.innerHTML = `
+                <div class="glass-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:400px; text-align:center; border-style:dashed; border-width:2px;">
+                    <div style="width:4rem; height:4rem; background:hsla(185,100%,50%,0.1); border-radius:1rem; display:flex; align-items:center; justify-content:center; font-size:2rem; color:hsl(var(--primary)); margin-bottom:1.5rem;">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <h3 style="font-size:1.25rem; font-weight:700; margin-bottom:0.5rem;">No Active Plan</h3>
+                    <p style="color:hsl(var(--muted-foreground)); max-width:280px; font-size:0.875rem; margin-bottom:1.5rem;">You don't have a workout plan yet. Generate one to get started!</p>
+                    <button class="btn btn-hero glow-primary" onclick="switchTab('generate')">
+                        <i class="fas fa-wand-magic-sparkles"></i> Generate My Plan
+                    </button>
+                </div>`;
+                return;
+            }
+
+            const day = data.today;
+            const isRest = day.type === 'rest';
+
+            container.innerHTML = `
+            <div style="display:grid; grid-template-columns:1fr 320px; gap:2rem;">
+                <!-- Main workout card -->
+                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                    <!-- Day header -->
+                    <div class="glass-card" style="background: hsla(185,100%,50%,0.05); border-color:hsla(185,100%,50%,0.2); position:relative; overflow:hidden;">
+                        <div style="position:absolute; top:-20px; right:-20px; width:150px; height:150px; background:hsla(185,100%,50%,0.08); filter:blur(40px); border-radius:50%;"></div>
+                        <div style="position:relative; z-index:1;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem;">
+                                <div>
+                                    <div style="font-size:0.7rem; font-weight:700; color:hsl(var(--primary)); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.25rem;">
+                                        Week ${data.week} · Day ${data.day_index} of ${data.total_days}
+                                    </div>
+                                    <h2 style="font-size:1.75rem; font-weight:800;">${day.day} — <span class="text-gradient-primary">${day.focus}</span></h2>
+                                </div>
+                                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:0.5rem;">
+                                    <span class="xp-badge">${isRest ? '😴 Rest Day' : `${day.exercises?.length || 0} Exercises`}</span>
+                                    ${data.estimated_calories ? `<span style="font-size:0.75rem; color:hsl(var(--muted-foreground));">~${data.estimated_calories} kcal</span>` : ''}
+                                </div>
+                            </div>
+                            <div style="font-size:0.875rem; color:hsl(var(--muted-foreground));">${data.plan_name}</div>
+                        </div>
+                    </div>
+
+                    ${isRest ? `
+                    <div class="glass-card" style="text-align:center; padding:3rem; background:hsla(150,80%,45%,0.05); border-color:hsla(150,80%,45%,0.2);">
+                        <div style="font-size:3rem; margin-bottom:1rem;">🧘</div>
+                        <h3 style="font-size:1.25rem; font-weight:700; margin-bottom:0.5rem; color:hsl(var(--success));">Active Recovery Day</h3>
+                        <p style="color:hsl(var(--muted-foreground)); max-width:400px; margin:0 auto; line-height:1.7;">Focus on mobility, hydration, and light walking. Your muscles are rebuilding — rest is where the gains happen.</p>
+                    </div>` : `
+                    <!-- Warmup -->
+                    ${day.warmup && day.warmup.length ? `
+                    <div class="glass-card">
+                        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+                            <div style="width:2rem; height:2rem; background:hsla(45,100%,55%,0.1); border-radius:0.5rem; display:flex; align-items:center; justify-content:center; color:hsl(var(--warning));">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <h4 style="font-size:0.875rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:hsl(var(--muted-foreground));">Warm Up</h4>
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                            ${(day.warmup || []).map(w => `<span style="padding:0.375rem 0.75rem; background:hsla(45,100%,55%,0.1); border:1px solid hsla(45,100%,55%,0.2); border-radius:9999px; font-size:0.75rem; color:hsl(var(--warning));">${typeof w === 'string' ? w : w.name || JSON.stringify(w)}</span>`).join('')}
+                        </div>
+                    </div>` : ''}
+
+                    <!-- Exercises -->
+                    <div style="display:flex; flex-direction:column; gap:1rem;">
+                        ${(day.exercises || []).map((ex, i) => `
+                        <div class="glass-card exercise-card" style="display:flex; gap:1.5rem; align-items:center; padding:1.25rem; transition:all 0.2s; cursor:pointer;" onclick="toggleExerciseDetails(${i})">
+                            <div style="width:3rem; height:3rem; background:hsla(185,100%,50%,0.1); border-radius:0.75rem; display:flex; align-items:center; justify-content:center; color:hsl(var(--primary)); font-weight:800; font-size:1.125rem; flex-shrink:0;">${i + 1}</div>
+                            <div style="flex:1;">
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.375rem;">
+                                    <h4 style="font-size:1rem; font-weight:700;">${ex.name}</h4>
+                                    <span class="xp-badge" style="font-size:0.65rem; background:hsla(15,90%,60%,0.1); color:hsl(var(--accent)); border-color:hsla(15,90%,60%,0.2);">${ex.intensity || 'moderate'}</span>
+                                </div>
+                                <div style="display:flex; gap:1.5rem; font-size:0.75rem; color:hsl(var(--muted-foreground));">
+                                    <span><i class="fas fa-layer-group" style="margin-right:0.3rem;"></i>${ex.sets} sets</span>
+                                    <span><i class="fas fa-redo" style="margin-right:0.3rem;"></i>${ex.reps}</span>
+                                    <span><i class="fas fa-clock" style="margin-right:0.3rem;"></i>${ex.rest || '60s'} rest</span>
+                                </div>
+                                <div id="ex-details-${i}" style="display:none; margin-top:0.75rem; padding-top:0.75rem; border-top:1px solid rgba(255,255,255,0.05); font-size:0.8rem; color:hsl(var(--muted-foreground)); line-height:1.6;">${ex.instructions || 'Focus on proper form and controlled movement.'}</div>
+                            </div>
+                            <i class="fas fa-chevron-down" style="color:hsl(var(--muted-foreground)); font-size:0.75rem; transition:transform 0.2s;" id="ex-chevron-${i}"></i>
+                        </div>`).join('')}
+                    </div>
+
+                    <!-- Cooldown -->
+                    ${day.cooldown && day.cooldown.length ? `
+                    <div class="glass-card">
+                        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+                            <div style="width:2rem; height:2rem; background:hsla(185,100%,50%,0.1); border-radius:0.5rem; display:flex; align-items:center; justify-content:center; color:hsl(var(--primary));">
+                                <i class="fas fa-snowflake"></i>
+                            </div>
+                            <h4 style="font-size:0.875rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:hsl(var(--muted-foreground));">Cool Down</h4>
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+                            ${(day.cooldown || []).map(c => `<span style="padding:0.375rem 0.75rem; background:hsla(185,100%,50%,0.08); border:1px solid hsla(185,100%,50%,0.15); border-radius:9999px; font-size:0.75rem; color:hsl(var(--primary));">${typeof c === 'string' ? c : c.name || JSON.stringify(c)}</span>`).join('')}
+                        </div>
+                    </div>` : ''}
+                    `}
+                </div>
+
+                <!-- Sidebar -->
+                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                    <!-- Log this session -->
+                    ${!isRest ? `
+                    <div class="glass-card" style="background:hsla(185,100%,50%,0.05); border-color:hsla(185,100%,50%,0.2);">
+                        <h4 style="font-size:0.875rem; font-weight:700; margin-bottom:1rem;">Log This Session</h4>
+                        <div class="form-group" style="margin-bottom:1rem;">
+                            <label style="font-size:0.75rem;">Duration (minutes)</label>
+                            <input type="number" id="session-duration" class="form-control" value="45" min="1">
+                        </div>
+                        <button class="btn btn-hero btn-full glow-primary" onclick="logTodaySession()">
+                            <i class="fas fa-check"></i> Mark Complete & Earn XP
+                        </button>
+                    </div>` : ''}
+
+                    <!-- Week progress -->
+                    <div class="glass-card">
+                        <h4 style="font-size:0.875rem; font-weight:700; margin-bottom:1rem; color:hsl(var(--muted-foreground)); text-transform:uppercase; letter-spacing:0.05em;">Week Progress</h4>
+                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.75rem;">
+                            <span>Day ${data.day_index} of ${data.total_days}</span>
+                            <span style="color:hsl(var(--primary)); font-weight:700;">${Math.round((data.day_index / data.total_days) * 100)}%</span>
+                        </div>
+                        <div class="progress-bar" style="height:0.625rem;">
+                            <div class="progress-fill glow-primary" style="width:${Math.round((data.day_index / data.total_days) * 100)}%; background:var(--gradient-primary);"></div>
+                        </div>
+                        <div style="display:flex; gap:0.375rem; margin-top:1rem; flex-wrap:wrap;">
+                            ${Array.from({length: data.total_days}, (_, i) => `
+                            <div style="width:1.75rem; height:1.75rem; border-radius:0.375rem; display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:700; background:${i < data.day_index ? 'hsla(185,100%,50%,0.2)' : i === data.day_index - 1 ? 'hsl(var(--primary))' : 'hsla(210,40%,98%,0.05)'}; color:${i === data.day_index - 1 ? 'hsl(var(--primary-foreground))' : i < data.day_index ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'}; border:1px solid ${i === data.day_index - 1 ? 'hsl(var(--primary))' : 'rgba(255,255,255,0.05)'};">
+                                ${i < data.day_index - 1 ? '<i class="fas fa-check" style="font-size:0.6rem;"></i>' : i + 1}
+                            </div>`).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    ${data.tips && data.tips.length ? `
+                    <div class="glass-card" style="background:hsla(15,90%,60%,0.05); border-color:hsla(15,90%,60%,0.1);">
+                        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+                            <i class="fas fa-lightbulb" style="color:hsl(var(--accent));"></i>
+                            <h4 style="font-size:0.875rem; font-weight:700;">Coach Tips</h4>
+                        </div>
+                        <p style="font-size:0.8rem; color:hsl(var(--muted-foreground)); line-height:1.6;">${data.tips[Math.floor(Math.random() * data.tips.length)]}</p>
+                    </div>` : ''}
+
+                    <!-- Restart plan -->
+                    <div class="glass-card" style="background:hsla(0,84%,60%,0.03); border-color:hsla(0,84%,60%,0.1);">
+                        <p style="font-size:0.75rem; color:hsl(var(--muted-foreground)); margin-bottom:0.75rem; line-height:1.5;">Plan started on <strong>${data.start_date}</strong>. Day tracking progresses automatically.</p>
+                        <button class="btn btn-ghost" style="font-size:0.75rem; width:100%; border:1px solid hsla(0,84%,60%,0.2); color:hsl(var(--destructive));" onclick="confirmResetPlan()">
+                            <i class="fas fa-rotate-left"></i> Restart from Day 1
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+        } catch (e) {
+            console.error(e);
+            container.innerHTML = `<div class="glass-card" style="color:hsl(var(--destructive));">Failed to load today's workout.</div>`;
+        }
+    }
+
+    function toggleExerciseDetails(i) {
+        const details = document.getElementById(`ex-details-${i}`);
+        const chevron = document.getElementById(`ex-chevron-${i}`);
+        const isOpen = details.style.display !== 'none';
+        details.style.display = isOpen ? 'none' : 'block';
+        chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+    }
+
+    async function logTodaySession() {
+        const userId = localStorage.getItem('fitai_user_id');
+        const duration = parseInt(document.getElementById('session-duration')?.value) || 45;
+        try {
+            const res = await fetch('/api/gamification/log_workout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, workout_type: 'program', duration })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast(`Session complete! +${data.xp_earned} XP earned 🎉`, 'success');
+            }
+        } catch (e) { showToast('Failed to log session', 'error'); }
+    }
+
+    async function confirmResetPlan() {
+        if (!confirm('Restart plan from Day 1? Your progress tracking will reset.')) return;
+        const userId = localStorage.getItem('fitai_user_id');
+        await fetch('/api/workout/reset_plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: userId })
+        });
+        showToast('Plan restarted from Day 1!', 'info');
+        await loadTodaysWorkout();
+    }
+
+    // ── Load full program ──
+    async function loadFullPlan() {
+        const userId = localStorage.getItem('fitai_user_id');
+        const container = document.getElementById('full-plan-container');
+        try {
+            const res = await fetch(`/api/workout/plan/${userId}`);
+            const data = await res.json();
+            if (data.success && data.plan) {
+                renderFullPlan(data.plan, container);
+            } else {
+                container.innerHTML = `
+                <div class="glass-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:400px; text-align:center; border-style:dashed; border-width:2px;">
+                    <h3 style="font-size:1.125rem; margin-bottom:0.5rem;">No Program Found</h3>
+                    <p style="color:hsl(var(--muted-foreground)); font-size:0.875rem; margin-bottom:1.5rem;">Generate a plan first to see your full weekly schedule.</p>
+                    <button class="btn btn-hero" onclick="switchTab('generate')"><i class="fas fa-wand-magic-sparkles"></i> Generate Plan</button>
+                </div>`;
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    function renderFullPlan(plan, container) {
+        const schedule = plan.weekly_schedule || plan;
+        const planName = plan.plan_name || 'Your Program';
+        container.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="font-size:1.25rem; font-weight:700;">${planName}</h3>
+                <span class="xp-badge">7-Day Cycle</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+                ${schedule.map((day, i) => `
+                <div class="glass-card" style="padding:1.25rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; cursor:pointer;" onclick="toggleDay(${i})">
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <div style="width:2rem; height:2rem; background:${day.type === 'rest' ? 'hsla(150,80%,45%,0.1)' : 'hsla(185,100%,50%,0.1)'}; border-radius:0.5rem; display:flex; align-items:center; justify-content:center; color:${day.type === 'rest' ? 'hsl(var(--success))' : 'hsl(var(--primary))'};">
+                                <i class="fas ${day.type === 'rest' ? 'fa-couch' : 'fa-dumbbell'}"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight:700; font-size:0.875rem;">${day.day} — ${day.focus}</div>
+                                <div style="font-size:0.75rem; color:hsl(var(--muted-foreground));">${day.type === 'rest' ? 'Recovery' : `${day.exercises?.length || 0} exercises`}</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down" id="day-chevron-${i}" style="font-size:0.75rem; color:hsl(var(--muted-foreground)); transition:transform 0.2s;"></i>
+                    </div>
+                    <div id="day-details-${i}" style="display:none; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.05);">
+                        ${day.type === 'rest' ? '<p style="font-size:0.875rem; color:hsl(var(--muted-foreground));">Active recovery. Focus on mobility, hydration, and light walking.</p>' :
+                        (day.exercises || []).map(ex => `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem; background:hsla(210,40%,98%,0.03); border-radius:0.5rem; margin-bottom:0.5rem;">
+                            <div>
+                                <div style="font-weight:600; font-size:0.875rem;">${ex.name}</div>
+                                <div style="font-size:0.75rem; color:hsl(var(--muted-foreground));">${ex.sets} sets × ${ex.reps} · ${ex.rest || '60s'} rest</div>
+                            </div>
+                            <span class="xp-badge" style="font-size:0.65rem; background:hsla(15,90%,60%,0.1); color:hsl(var(--accent));">${ex.intensity || 'mod'}</span>
+                        </div>`).join('')}
+                    </div>
+                </div>`).join('')}
+            </div>
+        </div>`;
+    }
+
+    function toggleDay(i) {
+        const el = document.getElementById(`day-details-${i}`);
+        const ch = document.getElementById(`day-chevron-${i}`);
+        const open = el.style.display !== 'none';
+        el.style.display = open ? 'none' : 'block';
+        ch.style.transform = open ? '' : 'rotate(180deg)';
+    }
+
+    // ── BMI calc ──
+    function updateBMI() {
+        const w = parseFloat(document.getElementById('w-weight').value);
+        const h = parseFloat(document.getElementById('w-height').value) / 100;
+        if (w > 0 && h > 0) {
+            const bmi = (w / (h * h)).toFixed(1);
+            document.getElementById('w-ctx-bmi').textContent = bmi;
+            return bmi;
+        }
+        return '--';
+    }
+
+    // ── Generate new workout ──
+    async function generateWorkout() {
+        const userId = localStorage.getItem('fitai_user_id');
+        const weight = document.getElementById('w-weight').value;
+        const height = document.getElementById('w-height').value;
+        const bmi = updateBMI();
+        const equipment = [];
+        document.querySelectorAll('.equipment-check:checked').forEach(cb => equipment.push(cb.value));
+
+        const output = document.getElementById('workout-output');
+        output.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:500px;" class="glass-card">
+            <div class="animate-pulse" style="color:hsl(var(--primary)); font-weight:700; margin-bottom:1rem;">ENGINEERING YOUR PLAN...</div>
+            <div style="font-size:0.75rem; color:hsl(var(--muted-foreground));">Analyzing biometric data & equipment availability</div>
+        </div>`;
+
+        try {
+            const res = await fetch('/api/workout/recommend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: userId, weight, height, bmi,
+                    fitness_goal: document.getElementById('w-goal').value,
+                    activity_level: document.getElementById('w-activity').value,
+                    equipment: equipment.join(', ')
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                showToast('New program generated! Switching to Day 1 🏋️', 'success');
+                // Reset plan start date to today
+                await fetch('/api/workout/reset_plan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+                // Show the generated plan in the output area
+                renderFullPlan(data.plan, output);
+                // Refresh today's tab and full plan tab
+                await loadTodaysWorkout();
+                await loadFullPlan();
+                // Switch to today's workout
+                setTimeout(() => switchTab('today'), 1500);
+            } else {
+                output.innerHTML = `<div class="glass-card" style="border-color:hsl(var(--destructive)); color:hsl(var(--destructive));">${data.error || 'Failed to generate'}</div>`;
+            }
+        } catch (e) { console.error(e); }
+    }
+</script>
+
+<style>
+    .tab-btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: hsl(var(--muted-foreground));
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    .tab-btn.active {
+        background: hsla(185, 100%, 50%, 0.1);
+        color: hsl(var(--primary));
+    }
+    .tab-btn:hover:not(.active) {
+        background: hsla(210, 40%, 98%, 0.05);
+        color: hsl(var(--foreground));
+    }
+    .exercise-card:hover {
+        border-color: hsla(185, 100%, 50%, 0.3) !important;
+        background: hsla(185, 100%, 50%, 0.05) !important;
+    }
+</style>
+{% endblock %}

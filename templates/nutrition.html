@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+{% block title %}Nutrition - FitFusion{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">Fuel Your <span class="text-gradient-primary">Potential</span></h1>
+        <p class="page-subtitle">Track your nutrition and get AI-powered insights for better performance.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 380px; gap: 2rem;">
+        <!-- Left Column -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Nutritional Overview -->
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.25rem;">Nutritional Overview</h3>
+                    <span class="xp-badge">Today</span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: hsl(var(--primary));" id="total-cals">0
+                        </div>
+                        <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Calories</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: hsl(var(--accent));" id="total-protein">
+                            0g</div>
+                        <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Protein</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #fbbf24;" id="total-carbs">0g</div>
+                        <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Carbs</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #10b981;" id="total-fats">0g</div>
+                        <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Fats</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div>
+                        <div
+                            style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
+                            <span>Daily Calorie Goal</span>
+                            <span id="cal-progress-text">0 / 2500 kcal</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="cal-progress-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Food Scanner -->
+            <div class="glass-card">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+                    <div
+                        style="width: 2.5rem; height: 2.5rem; background: hsla(185, 100%, 50%, 0.1); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: hsl(var(--primary));">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem;">AI Food Scanner</h3>
+                </div>
+
+                <div class="upload-zone" id="upload-zone" onclick="document.getElementById('food-input').click()"
+                    style="height: 200px; border-style: dashed; border-width: 2px;">
+                    <input type="file" id="food-input" accept="image/*" style="display: none;"
+                        onchange="handleFile(this)">
+                    <div id="upload-content" style="text-align: center;">
+                        <i class="fas fa-cloud-upload-alt"
+                            style="font-size: 2.5rem; color: hsl(var(--primary)); margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <h4 style="font-weight: 600; margin-bottom: 0.25rem;">Snap or Upload a Photo</h4>
+                        <p style="font-size: 0.875rem; color: hsl(var(--muted-foreground));">Get instant macro breakdown
+                        </p>
+                    </div>
+                    <div id="image-preview" style="display: none; width: 100%; height: 100%;">
+                        <img id="preview-img"
+                            style="width: 100%; height: 100%; object-fit: cover; border-radius: 0.5rem;">
+                    </div>
+                </div>
+
+                <div id="analysis-controls" style="display: none; margin-top: 1.5rem;">
+                    <button class="btn btn-hero btn-full glow-primary" id="analyze-btn" onclick="analyzeFood()">
+                        Analyze This Meal <i class="fas fa-bolt"></i>
+                    </button>
+                    <button class="btn btn-ghost btn-full" onclick="clearImage()" style="margin-top: 0.75rem;">
+                        Discard
+                    </button>
+                </div>
+
+                <div id="nutrition-output" style="margin-top: 2rem;"></div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Recent Meals -->
+            <div class="glass-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1rem;">Recent Meals</h3>
+                    <button class="btn btn-ghost btn-sm" onclick="clearLog()">Clear</button>
+                </div>
+                <div id="food-log" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div
+                        style="text-align: center; padding: 2rem; color: hsl(var(--muted-foreground)); font-size: 0.875rem;">
+                        No meals logged yet.
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Tip -->
+            <div class="glass-card"
+                style="background: hsla(15, 90%, 60%, 0.05); border-color: hsla(15, 90%, 60%, 0.1);">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                    <i class="fas fa-lightbulb" style="color: hsl(var(--accent));"></i>
+                    <h3 style="font-size: 1rem;">Pro Tip</h3>
+                </div>
+                <p style="font-size: 0.875rem; color: hsl(var(--muted-foreground)); line-height: 1.6;">
+                    Logging your food within 15 minutes of eating increases accuracy and helps you stay mindful of your
+                    habits.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let foodLog = JSON.parse(localStorage.getItem('fitai_food_log_' + new Date().toDateString()) || '[]');
+    let currentFile = null;
+    let dailyCalorieGoal = 2500; // default, overridden by TDEE
+
+    async function loadCalorieGoal() {
+        const userId = localStorage.getItem('fitai_user_id');
+        try {
+            const res = await fetch(`/api/user/tdee/${userId}`);
+            const data = await res.json();
+            if (data.success) {
+                dailyCalorieGoal = data.tdee;
+                document.getElementById('cal-progress-text').textContent = `0 / ${dailyCalorieGoal} kcal`;
+            }
+        } catch(e) {}
+    }
+
+    function handleFile(input) {
+        if (input.files[0]) setFile(input.files[0]);
+    }
+
+    function setFile(file) {
+        currentFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('preview-img').src = e.target.result;
+            document.getElementById('image-preview').style.display = 'block';
+            document.getElementById('upload-content').style.display = 'none';
+            document.getElementById('analysis-controls').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function clearImage() {
+        currentFile = null;
+        document.getElementById('food-input').value = '';
+        document.getElementById('image-preview').style.display = 'none';
+        document.getElementById('upload-content').style.display = 'block';
+        document.getElementById('analysis-controls').style.display = 'none';
+        document.getElementById('nutrition-output').innerHTML = '';
+    }
+
+    async function analyzeFood() {
+        if (!currentFile) return;
+
+        const output = document.getElementById('nutrition-output');
+        output.innerHTML = `<div style="text-align: center; padding: 2rem;"><div class="animate-pulse" style="color: hsl(var(--primary)); font-weight: 600;">Analyzing your patterns...</div></div>`;
+
+        const formData = new FormData();
+        formData.append('image', currentFile);
+
+        try {
+            const res = await fetch('/api/nutrition/analyze', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                renderNutrition(data.result, output);
+            } else {
+                output.innerHTML = `<div class="glass-card" style="border-color: hsl(var(--destructive)); color: hsl(var(--destructive)); font-size: 0.875rem;">${data.error || 'Failed to analyze'}</div>`;
+            }
+        } catch (e) {
+            output.innerHTML = `<div class="glass-card" style="border-color: hsl(var(--destructive)); color: hsl(var(--destructive));">Error: ${e.message}</div>`;
+        }
+    }
+
+    function renderNutrition(result, container) {
+        container.innerHTML = `
+        <div class="animate-scale-in" style="display: flex; flex-direction: column; gap: 1.5rem; padding-top: 1rem; border-top: 1px solid hsl(var(--border));">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <h4 style="font-size: 1.25rem; font-weight: 700;">${result.food_name}</h4>
+                    <span style="font-size: 0.875rem; color: hsl(var(--muted-foreground));">${result.serving_size}</span>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: hsl(var(--primary)); font-family: 'Space Grotesk';">${result.calories}</div>
+                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">kcal</div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                <div class="glass-card" style="padding: 1rem; text-align: center;">
+                    <div style="color: hsl(var(--accent)); font-weight: 700;">${result.macros?.protein}g</div>
+                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Protein</div>
+                </div>
+                <div class="glass-card" style="padding: 1rem; text-align: center;">
+                    <div style="color: #fbbf24; font-weight: 700;">${result.macros?.carbs}g</div>
+                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Carbs</div>
+                </div>
+                <div class="glass-card" style="padding: 1rem; text-align: center;">
+                    <div style="color: #10b981; font-weight: 700;">${result.macros?.fats}g</div>
+                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">Fats</div>
+                </div>
+            </div>
+
+            <div class="glass-card" style="background: hsla(185, 100%, 50%, 0.05);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="font-size: 0.875rem; font-weight: 600;">Health Score</span>
+                    <span style="font-size: 0.875rem; font-weight: 600; color: hsl(var(--primary));">${result.health_score}/10</span>
+                </div>
+                <p style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">${result.health_notes}</p>
+            </div>
+
+            <button class="btn btn-hero btn-full" onclick="addToLog(${JSON.stringify(result).replace(/"/g, '&quot;')})">
+                Add to Daily Log <i class="fas fa-plus"></i>
+            </button>
+        </div>`;
+    }
+
+    function addToLog(result) {
+        foodLog.push({
+            name: result.food_name,
+            calories: result.calories,
+            protein: result.macros?.protein || 0,
+            carbs: result.macros?.carbs || 0,
+            fats: result.macros?.fats || 0,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+        localStorage.setItem('fitai_food_log_' + new Date().toDateString(), JSON.stringify(foodLog));
+        renderLog();
+        clearImage();
+    }
+
+    function clearLog() {
+        foodLog = [];
+        localStorage.removeItem('fitai_food_log_' + new Date().toDateString());
+        renderLog();
+    }
+
+    function renderLog() {
+        const logEl = document.getElementById('food-log');
+        if (foodLog.length === 0) {
+            logEl.innerHTML = '<div style="text-align: center; padding: 2rem; color: hsl(var(--muted-foreground)); font-size: 0.875rem;">No meals logged yet.</div>';
+            updateTotals(0, 0, 0, 0);
+            return;
+        }
+
+        let tC = 0, tP = 0, tCb = 0, tF = 0;
+        logEl.innerHTML = foodLog.map((f, i) => {
+            tC += f.calories;
+            tP += f.protein;
+            tCb += f.carbs;
+            tF += f.fats;
+            return `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: hsla(210, 40%, 98%, 0.05); border-radius: 0.75rem; border: 1px solid hsla(210, 40%, 98%, 0.05);">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.875rem;">${f.name}</div>
+                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">${f.time} • ${f.calories} kcal</div>
+                </div>
+                <button onclick="deleteMeal(${i})" style="background: none; border: none; color: hsl(var(--muted-foreground)); cursor: pointer;">
+                    <i class="fas fa-trash-alt" style="font-size: 0.75rem;"></i>
+                </button>
+            </div>
+        `;
+        }).join('');
+        updateTotals(tC, tP, tCb, tF);
+    }
+
+    function deleteMeal(i) {
+        foodLog.splice(i, 1);
+        localStorage.setItem('fitai_food_log_' + new Date().toDateString(), JSON.stringify(foodLog));
+        renderLog();
+    }
+
+    function updateTotals(c, p, cb, f) {
+        document.getElementById('total-cals').textContent = c;
+        document.getElementById('total-protein').textContent = p + 'g';
+        document.getElementById('total-carbs').textContent = cb + 'g';
+        document.getElementById('total-fats').textContent = f + 'g';
+
+        const goal = dailyCalorieGoal;
+        const pct = Math.min((c / goal) * 100, 100);
+        document.getElementById('cal-progress-bar').style.width = pct + '%';
+        document.getElementById('cal-progress-text').textContent = `${c} / ${goal} kcal`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { loadCalorieGoal(); renderLog(); });
+</script>
+{% endblock %}

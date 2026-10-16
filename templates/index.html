@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitFusion - Transform Your Fitness Journey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .nav-landing {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 4rem;
+            background: rgba(4, 7, 10, 0.4);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .hero {
+            padding-top: 10rem;
+            padding-bottom: 6rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-glow {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60rem;
+            height: 60rem;
+            background: radial-gradient(circle, hsla(185, 100%, 50%, 0.1) 0%, transparent 70%);
+            z-index: -1;
+            filter: blur(60px);
+        }
+
+        .feature-grid-landing {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-landing {
+                padding: 0 1.5rem;
+            }
+
+            .feature-grid-landing {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: hsl(var(--muted-foreground));
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-hero">
+    <!-- Navbar -->
+    <nav class="nav-landing">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div class="logo-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <span class="logo-text">FitFusion</span>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <a href="/login" class="btn btn-ghost">Login</a>
+            <button class="btn btn-hero" onclick="showModal()">Get Started</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero container">
+        <div class="hero-glow animate-pulse-glow"></div>
+        <div style="max-width: 56rem; margin: 0 auto; text-align: center;" class="animate-fade-in">
+            <div
+                style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: hsla(185, 100%, 50%, 0.1); border: 1px solid hsla(185, 100%, 50%, 0.2); border-radius: 9999px; color: hsl(var(--primary)); font-size: 0.875rem; font-weight: 600; margin-bottom: 2rem;">
+                <span style="width: 0.5rem; height: 0.5rem; background: hsl(var(--primary)); border-radius: 50%;"
+                    class="animate-pulse"></span>
+                AI-Powered Personal Training
+            </div>
+            <h1 style="font-size: clamp(3rem, 8vw, 5rem); line-height: 1; margin-bottom: 1.5rem;" class="animate-float">
+                Transform Your <span class="text-gradient-primary">Fitness Journey</span>
+            </h1>
+            <p style="font-size: 1.25rem; color: hsl(var(--muted-foreground)); margin-bottom: 3rem; line-height: 1.6;">
+                Experience the future of personal training. FitFusion combines advanced AI with
+                proven metabolic science to deliver hyper-personalized results.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-hero btn-xl glow-primary" onclick="showModal()">
+                    Start Free Trial <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn btn-glass btn-xl" onclick="quickDemo()">
+                    View Demo <i class="fas fa-play"></i>
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <div
+                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 6rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4rem;">
+                <div class="stat-item">
+                    <div class="stat-value text-gradient-primary">50k+</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value text-gradient-accent">98%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value text-gradient-primary">AI</div>
+                    <div class="stat-label">Native Support</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="container" style="padding-top: 8rem; padding-bottom: 8rem;">
+        <div style="text-align: center; margin-bottom: 4rem;">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Powered by <span class="text-gradient-primary">Precision
+                    AI</span></h2>
+            <p style="color: hsl(var(--muted-foreground)); max-width: 32rem; margin: 0 auto;">Everything you need to
+                reach your goals faster and safer than ever before.</p>
+        </div>
+
+        <div class="feature-grid-landing">
+            <div class="glass-card animate-fade-in" style="animation-delay: 0.1s">
+                <div
+                    style="width: 3rem; height: 3rem; background: hsla(185, 100%, 50%, 0.1); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: hsl(var(--primary)); margin-bottom: 1.5rem;">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem;">AI Workout Generation</h3>
+                <p style="color: hsl(var(--muted-foreground));">Deep-learning algorithms analyze your biomechanics and
+                    goals to create hyper-personalized routines that evolve with you.</p>
+            </div>
+            <div class="glass-card animate-fade-in" style="animation-delay: 0.2s">
+                <div
+                    style="width: 3rem; height: 3rem; background: hsla(15, 90%, 60%, 0.1); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: hsl(var(--accent)); margin-bottom: 1.5rem;">
+                    <i class="fas fa-apple-alt"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem;">Precision Nutrition</h3>
+                <p style="color: hsl(var(--muted-foreground));">Food recognition technology paired with metabolic
+                    tracking ensures every calorie and macro is accounted for automatically.</p>
+            </div>
+            <div class="glass-card animate-fade-in" style="animation-delay: 0.3s">
+                <div
+                    style="width: 3rem; height: 3rem; background: hsla(185, 100%, 50%, 0.1); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: hsl(var(--primary)); margin-bottom: 1.5rem;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem;">Predictive Progress</h3>
+                <p style="color: hsl(var(--muted-foreground));">See your transformation before it happens. Predictive
+                    modeling forecasts your results based on current intensity and consistency.</p>
+            </div>
+            <div class="glass-card animate-fade-in" style="animation-delay: 0.4s">
+                <div
+                    style="width: 3rem; height: 3rem; background: hsla(15, 90%, 60%, 0.1); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: hsl(var(--accent)); margin-bottom: 1.5rem;">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem;">AI Form Correction</h3>
+                <p style="color: hsl(var(--muted-foreground));">Real-time pose estimation tracks 33 points on your body
+                    to prevent injury and ensure maximum muscle activation.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture Section (Replica of Index about section) -->
+    <section
+        style="background: rgba(255,255,255,0.02); padding: 8rem 0; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+                <div class="animate-fade-in">
+                    <div
+                        style="font-weight: 700; color: hsl(var(--primary)); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">
+                        Scale and Performance</div>
+                    <h2 style="font-size: 3rem; line-height: 1.1; margin-bottom: 2rem;">Architected for <span
+                            class="text-gradient-primary">Excellence</span></h2>
+                    <p
+                        style="color: hsl(var(--muted-foreground)); font-size: 1.125rem; line-height: 1.6; margin-bottom: 2rem;">
+                        Our core engine is built on a high-performance scalability architecture, capable of processing
+                        thousands of data points per second. From edge-computing pose detection to global meal
+                        distribution, FitFusion is built for the global athlete.
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div
+                                style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background: hsla(185, 100%, 50%, 0.1); display: flex; align-items: center; justify-content: center; color: hsl(var(--primary)); font-size: 0.75rem;">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span style="font-weight: 500;">99.9% Uptime Guarantee</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div
+                                style="width: 1.5rem; height: 1.5rem; border-radius: 50%; background: hsla(15, 90%, 60%, 0.1); display: flex; align-items: center; justify-content: center; color: hsl(var(--accent)); font-size: 0.75rem;">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span style="font-weight: 500;">End-to-end Encrypted Progress</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card animate-float"
+                    style="padding: 3rem; border-color: rgba(255,255,255,0.1); background: hsla(220, 20%, 6%, 0.8);">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div
+                            style="height: 8rem; border-radius: 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-layer-group"
+                                style="font-size: 2rem; color: hsla(185, 100%, 50%, 0.5);"></i>
+                        </div>
+                        <div
+                            style="height: 8rem; border-radius: 1rem; background: var(--gradient-primary); opacity: 0.2; border: 1px solid rgba(255,255,255,0.05);">
+                        </div>
+                        <div
+                            style="grid-column: span 2; height: 4rem; border-radius: 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);">
+                        </div>
+                        <div
+                            style="height: 6rem; border-radius: 1rem; background: var(--gradient-accent); opacity: 0.2; border: 1px solid rgba(255,255,255,0.05);">
+                        </div>
+                        <div
+                            style="height: 6rem; border-radius: 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05);">
+                        </div>
+                    </div>
+                    <div style="margin-top: 2rem; text-align: center;">
+                        <div
+                            style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; margin-bottom: 0.25rem;">
+                            Global Engine v4.0</div>
+                        <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground));">SYSTEM STATUS: OPTIMAL
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer container style="padding: 4rem 0; border-top: 1px solid rgba(255,255,255,0.05); text-align: center;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; justify-content: center; margin-bottom: 1.5rem;">
+            <div class="logo-icon" style="width: 2rem; height: 2rem; font-size: 1rem;">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <span class="logo-text" style="font-size: 1.25rem;">FitFusion</span>
+        </div>
+        <div style="color: hsl(var(--muted-foreground)); font-size: 0.875rem;">
+            © 2026 FitFusion AI. Built with Metabolic Science and Advanced AI.
+        </div>
+    </footer>
+
+    <!-- User Setup Modal (Reused from App) -->
+    <div class="modal-overlay" id="setup-modal" style="display:none">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Welcome to <span class="text-gradient-primary">FitFusion</span> 💪</h2>
+                <p>Let's set up your profile to personalize your experience</p>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" class="form-control" id="setup-username" placeholder="Choose a username"
+                            required>
+                    </div>
+                    <div class="form-group" id="email-group">
+                        <label>Email</label>
+                        <input type="email" class="form-control" id="setup-email" placeholder="your@email.com">
+                    </div>
+                    <!-- Simplified for landing page speed -->
+                    <div class="form-group" id="goal-group">
+                        <label>Fitness Goal</label>
+                        <select class="form-control" id="setup-goal">
+                            <option value="weight loss">Weight Loss</option>
+                            <option value="weight gain">Weight Gain</option>
+                            <option value="muscle gain">Muscle Gain</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="strength">Strength</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select class="form-control" id="setup-role" onchange="toggleRoleFields()">
+                            <option value="user" selected>User</option>
+                            <option value="trainer">Trainer</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="password-group">
+                        <label>Password</label>
+                        <input type="password" class="form-control" id="setup-password" placeholder="Choose a password"
+                            required>
+                    </div>
+                    <div class="form-group" id="experience-group">
+                        <label>Experience Level</label>
+                        <select class="form-control" id="setup-level">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="text-align: center; margin-top: 2rem;">
+                <button class="btn btn-hero btn-xl glow-primary" id="save-profile-btn" onclick="saveProfile()">
+                    Start Journey <i class="fas fa-rocket"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        function showModal() {
+            toggleRoleFields();
+            document.getElementById('setup-modal').style.display = 'flex';
+        }
+
+        function quickDemo() {
+            document.getElementById('setup-username').value = 'demo_user';
+            document.getElementById('setup-role').value = 'user';
+            document.getElementById('setup-password').value = 'demo123';
+            document.getElementById('setup-goal').value = 'weight loss';
+            toggleRoleFields();
+            showModal();
+        }
+
+
+        // Auto-redirect if already set up
+        if (localStorage.getItem('fitai_user_id')) {
+            window.location.href = '/dashboard';
+        }
+
+        function toggleRoleFields() {
+            const role = document.getElementById('setup-role').value;
+            const expGroup = document.getElementById('experience-group');
+            const emailGroup = document.getElementById('email-group');
+            const goalGroup = document.getElementById('goal-group');
+
+            if (role === 'trainer') {
+                expGroup.style.display = 'none';
+                if (emailGroup) emailGroup.style.display = 'none';
+                if (goalGroup) goalGroup.style.display = 'none';
+            } else {
+                expGroup.style.display = 'block';
+                if (emailGroup) emailGroup.style.display = 'block';
+                if (goalGroup) goalGroup.style.display = 'block';
+            }
+        }
+
+        // Close sidebar on click outside on mobile
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('setup-modal');
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

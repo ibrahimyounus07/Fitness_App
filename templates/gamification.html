@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+{% block title %}Achievements - FitFusion{% endblock %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Header -->
+    <div class="page-header">
+        <h1 class="page-title">Your <span class="text-gradient-primary">Journey</span></h1>
+        <p class="page-subtitle">Level up your fitness, earn rare badges, and compete with the community.</p>
+    </div>
+
+    <!-- Main Progression -->
+    <div style="display: grid; grid-template-columns: 420px 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <div class="glass-card" style="position: relative; overflow: hidden;">
+            <div
+                style="position: absolute; top: -20px; right: -20px; width: 150px; height: 150px; background: hsla(185, 100%, 50%, 0.1); filter: blur(40px); border-radius: 50%;">
+            </div>
+
+            <div style="position: relative; z-index: 1;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+                    <div>
+                        <div
+                            style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">
+                            Current Tier</div>
+                        <h2 style="font-size: 1.5rem; font-weight: 800;" id="g-tier-name">Fitness Novice</h2>
+                    </div>
+                    <div style="width: 4rem; height: 4rem; background: hsla(185, 100%, 50%, 0.1); border-radius: 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; font-weight: 800; color: hsl(var(--primary)); border: 1px solid hsla(185, 100%, 50%, 0.2);"
+                        id="g-level">1</div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.75rem;">
+                        <span style="color: hsl(var(--muted-foreground));">Experience (XP)</span>
+                        <span style="font-weight: 600;" id="g-xp-text">0 / 100</span>
+                    </div>
+                    <div class="progress-bar" style="height: 0.75rem;">
+                        <div class="progress-fill glow-primary" id="g-xp-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div
+                    style="background: hsla(210, 40%, 98%, 0.03); border-radius: 0.75rem; padding: 1rem; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); margin-bottom: 0.25rem;">NEXT
+                        MILESTONE</div>
+                    <div style="font-size: 0.875rem; font-weight: 600;" id="g-xp-next">100 XP to Level Up</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+            <div class="glass-card"
+                style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <div
+                    style="width: 3rem; height: 3rem; background: hsla(15, 90%, 60%, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: hsl(var(--accent)); margin-bottom: 1rem;">
+                    <i class="fas fa-fire" style="font-size: 1.25rem;"></i>
+                </div>
+                <div style="font-size: 1.75rem; font-weight: 800;" id="g-streak">0</div>
+                <div
+                    style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); font-weight: 600; text-transform: uppercase;">
+                    Active Streak</div>
+            </div>
+
+            <div class="glass-card"
+                style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <div
+                    style="width: 3rem; height: 3rem; background: hsla(185, 100%, 50%, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: hsl(var(--primary)); margin-bottom: 1rem;">
+                    <i class="fas fa-dumbbell" style="font-size: 1.25rem;"></i>
+                </div>
+                <div style="font-size: 1.75rem; font-weight: 800;" id="g-workouts">0</div>
+                <div
+                    style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); font-weight: 600; text-transform: uppercase;">
+                    Total Workouts</div>
+            </div>
+
+            <div class="glass-card"
+                style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <div
+                    style="width: 3rem; height: 3rem; background: hsla(280, 80%, 60%, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #a855f7; margin-bottom: 1rem;">
+                    <i class="fas fa-star" style="font-size: 1.25rem;"></i>
+                </div>
+                <div style="font-size: 1.75rem; font-weight: 800;" id="g-total-xp">0</div>
+                <div
+                    style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); font-weight: 600; text-transform: uppercase;">
+                    Lifetime XP</div>
+            </div>
+
+            <div class="glass-card"
+                style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <div
+                    style="width: 3rem; height: 3rem; background: hsla(330, 80%, 60%, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ec4899; margin-bottom: 1rem;">
+                    <i class="fas fa-medal" style="font-size: 1.25rem;"></i>
+                </div>
+                <div style="font-size: 1.75rem; font-weight: 800;" id="g-badges">0</div>
+                <div
+                    style="font-size: 0.75rem; color: hsl(var(--muted-foreground)); font-weight: 600; text-transform: uppercase;">
+                    Badges Earned</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Activity -->
+    <div class="glass-card" style="margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+            <div
+                style="width: 2.5rem; height: 2.5rem; background: hsla(185, 100%, 50%, 0.1); border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; color: hsl(var(--primary));">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h3 style="font-size: 1.25rem;">Log Performance</h3>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1.5rem; align-items: flex-end;">
+            <div class="form-group">
+                <label>Workout Category</label>
+                <select id="log-type" class="form-control">
+                    <option value="weightlifting">Weightlifting</option>
+                    <option value="running">Cardio Training</option>
+                    <option value="yoga">Yoga & Mobility</option>
+                    <option value="hiit">HIIT Session</option>
+                    <option value="pushup">Bodyweight (Pushups)</option>
+                    <option value="squat">Bodyweight (Squats)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Duration (Minutes)</label>
+                <input type="number" id="log-duration" class="form-control" value="30" min="1">
+            </div>
+            <button class="btn btn-hero glow-primary" onclick="logWorkout()" style="padding: 0 2rem; height: 3rem;">
+                Commit Session <i class="fas fa-plus"></i>
+            </button>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 380px; gap: 2rem;">
+        <!-- Badges Grid -->
+        <div class="glass-card">
+            <h3 style="font-size: 1.125rem; margin-bottom: 1.5rem;">Collected Badges</h3>
+            <div id="badges-unlocked-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem;">
+                <!-- Dynamically populated -->
+            </div>
+            <div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 2rem;">
+                <h4 style="font-size: 0.875rem; color: hsl(var(--muted-foreground)); margin-bottom: 1rem;">Available
+                    Goals</h4>
+                <div id="badges-locked-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; opacity: 0.5;">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="font-size: 1.125rem;">Community</h3>
+                <span class="xp-badge">Global</span>
+            </div>
+            <div id="leaderboard-list" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="animate-pulse">Loading rankings...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    async function loadGamification() {
+        const userId = localStorage.getItem('fitai_user_id');
+        if (!userId) { window.location.href = '/'; return; }
+
+        try {
+            const res = await fetch(`/api/gamification/${userId}`);
+            const data = await res.json();
+
+            if (!data.success) return;
+
+            const g = data.gamification;
+            const level = g.level || 1;
+            const xp = g.total_xp || 0;
+            const xpInLevel = xp % 100;
+
+            document.getElementById('g-level').textContent = level;
+            document.getElementById('g-total-xp').textContent = xp;
+            document.getElementById('g-streak').textContent = g.streak_days || 0;
+            document.getElementById('g-workouts').textContent = g.total_workouts || 0;
+            document.getElementById('g-badges').textContent = (data.badges_unlocked || []).length;
+            document.getElementById('g-total-xp').textContent = g.total_xp || 0;
+            document.getElementById('g-xp-text').textContent = `${xpInLevel} / 100 XP`;
+            document.getElementById('g-xp-bar').style.width = `${xpInLevel}%`;
+            document.getElementById('g-xp-next').textContent = `${data.xp_to_next_level} XP to Level ${level + 1}`;
+
+            const titles = ['', 'Fitness Novice', 'Active Beginner', 'Regular Trainer', 'Dedicated Athlete', 'Fitness Warrior', 'Elite Performer', 'Champion', 'Legend'];
+            document.getElementById('g-tier-name').textContent = titles[Math.min(level, titles.length - 1)] || 'Fitness Legend';
+
+            // Badges
+            const unlockedGrid = document.getElementById('badges-unlocked-grid');
+            unlockedGrid.innerHTML = data.badges_unlocked.length ? data.badges_unlocked.map(b => `
+            <div class="glass-card animate-scale-in" style="padding: 1rem; text-align: center; background: hsla(185, 100%, 50%, 0.03); border-color: hsla(185, 100%, 50%, 0.2);">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">${b.icon}</div>
+                <div style="font-weight: 700; font-size: 0.75rem; margin-bottom: 0.25rem;">${b.name}</div>
+                <div style="font-size: 0.65rem; color: hsl(var(--muted-foreground)); line-height: 1.3;">${b.desc}</div>
+            </div>`).join('') : '<div style="grid-column: 1/-1; text-align: center; color: hsl(var(--muted-foreground)); font-size: 0.875rem;">Complete your first workout to earn a badge.</div>';
+
+            const lockedGrid = document.getElementById('badges-locked-grid');
+            lockedGrid.innerHTML = data.badges_locked.map(b => `
+            <div class="glass-card" style="padding: 1rem; text-align: center; filter: grayscale(1);">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.3;">${b.icon}</div>
+                <div style="font-weight: 700; font-size: 0.75rem;">${b.name}</div>
+            </div>`).join('');
+
+            // Leaderboard
+            const lbEl = document.getElementById('leaderboard-list');
+            lbEl.innerHTML = data.leaderboard.length ? data.leaderboard.map((u, i) => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: hsla(210, 40%, 98%, 0.03); border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.05);">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div style="width: 1.5rem; font-weight: 800; color: ${i < 3 ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'};">${i + 1}</div>
+                    <div style="font-weight: 600; font-size: 0.875rem;">${u.username}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-weight: 700; font-size: 0.875rem;">${u.total_xp}</div>
+                    <div style="font-size: 0.65rem; color: hsl(var(--muted-foreground));">XP • Lv.${u.level}</div>
+                </div>
+            </div>
+        `).join('') : '<div style="text-align: center; padding: 2rem; color: hsl(var(--muted-foreground));">No rankings found.</div>';
+
+        } catch (e) { console.error(e); }
+    }
+
+    async function logWorkout() {
+        const userId = localStorage.getItem('fitai_user_id');
+        const workoutType = document.getElementById('log-type').value;
+        const duration = parseInt(document.getElementById('log-duration').value) || 30;
+
+        try {
+            const res = await fetch('/api/gamification/log_workout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, workout_type: workoutType, duration })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                showToast(`Session Commit! +${data.xp_earned} XP earned 🎉`, 'success');
+                setTimeout(loadGamification, 500);
+            }
+        } catch (e) { showToast('Connection failed', 'error'); }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadGamification);
+</script>
+{% endblock %}
